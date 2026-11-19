@@ -298,7 +298,7 @@ body.intro-lock{overflow:hidden}
     {name:'Riacho dos lírios', sky:'#634b79', glow:'#e6929c', ground:'#43505d', tip:'Atravesse o riacho pelas pedras e pegue o segundo lírio.', platforms:[[0,231,171],[234,218,101],[398,198,114],[579,225,121],[762,221,174]], flower:[488,179], gate:892, enemies:[[285,218,22,34],[644,225,28,38]]},
     {name:'Jardim dos vaga-lumes', sky:'#382d58', glow:'#a36785', ground:'#3f534b', tip:'Pule na cabeça do guardião duas vezes para seguir.', platforms:[[0,230,175],[236,213,110],[411,188,121],[599,207,122],[787,229,216]], flower:[690,188], gate:917, enemies:[[884,229,29,38,2]]},
     {name:'Terraços da lua', sky:'#233959', glow:'#77669b', ground:'#3d5664', tip:'As pedras são estreitas. Pule por cima das mariposas ou acerte-as de cima.', platforms:[[0,235,160],[224,208,98],[389,183,99],[557,204,112],[713,231,136],[899,215,129]], flower:[978,196], gate:991, enemies:[[441,183,21,44],[755,231,17,51]]},
-    {name:'Estufa encantada', sky:'#3d2448', glow:'#ac687e', ground:'#4f5946', tip:'Ache o último lírio e acerte a guardiã três vezes para chegar à estufa.', platforms:[[0,232,186],[247,213,121],[438,193,110],[617,214,127],[814,229,295]], flower:[717,195], gate:1069, enemies:[[505,193,17,36],[956,229,48,48,3]]}
+    {name:'Estufa encantada', sky:'#3d2448', glow:'#ac687e', ground:'#4f5946', tip:'Pegue o último lírio. Pule sobre o pólen e acerte a guardiã três vezes.', platforms:[[0,232,186],[247,213,121],[438,193,110],[617,214,127],[814,229,295]], flower:[717,195], gate:1069, enemies:[[505,193,17,36],[956,229,48,48,3]]}
   ];
   const lilies = [
     {name:'branco', petals:['#fffdf0','#fff0ce','#fff7df'], center:'#e4a44b'},
@@ -307,6 +307,13 @@ body.intro-lock{overflow:hidden}
     {name:'lilás', petals:['#cab0ff','#a287e6','#efe1ff'], center:'#ffe398'},
     {name:'coral', petals:['#ff917b','#e96a68','#ffb5a5'], center:'#ffdf83'}
   ];
+  // As pegadinhas ficam fora do ponto de retorno de cada plataforma.
+  const tricksByLevel = {
+    1: [{kind:'spike', x:664, y:225}],
+    2: [{kind:'crumble', x:599, y:207, width:122}],
+    3: [{kind:'spike', x:635, y:204}, {kind:'spike', x:807, y:231}]
+  };
+  let tricks = [], pollen = [], shotCooldown = 2;
   const total = levels.length;
   let progress = 0, picked = false;
   const keys = new Set(), touches = new Map();
@@ -314,6 +321,9 @@ body.intro-lock{overflow:hidden}
   function reset(x, top) {
     player = {x,y:top-28,vx:0,vy:0,grounded:true,facing:1,jumpBuffer:0,coyote:0};
     camera = Math.max(0,x-125);
+    pollen = [];
+    shotCooldown = 2;
+    for (const trick of tricks) trick.elapsed = -1;
   }
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finaleDuration = 6.6;
@@ -335,6 +345,7 @@ body.intro-lock{overflow:hidden}
       enemies = levels[progress].enemies.map(([x,top,range,speed,hits]) => ({
         origin:x, x, top, range, speed, hp:hits ?? 1, boss:Boolean(hits), time:0, grace:0
       }));
+      tricks = (tricksByLevel[progress] ?? []).map(trick => ({...trick, elapsed:-1}));
       reset(...checkpoint);
     }
     get('garden-level').textContent = progress === total ? 'Em casa' : `Fase ${progress+1} · ${levels[progress].name}`;
@@ -395,7 +406,23 @@ body.intro-lock{overflow:hidden}
     p.vy += 690*dt;
     p.y += p.vy*dt;
     p.grounded = false;
+    for (const trick of tricks) {
+      const center = p.x + 6;
+      if (trick.elapsed < 0 && Math.abs(p.y + 28 - trick.y) < 32) {
+        if (trick.kind === 'spike' && Math.abs(center - trick.x) < 56) trick.elapsed = 0;
+        if (trick.kind === 'crumble' && center > trick.x + 24 && center < trick.x + trick.width) trick.elapsed = 0;
+      }
+      if (trick.elapsed >= 0) trick.elapsed += dt;
+      if (trick.kind === 'spike' && trick.elapsed >= .52 && trick.elapsed < 1.15 &&
+          Math.abs(center - trick.x) < 13 && p.y + 28 > trick.y - 14 && p.y < trick.y) {
+        get('garden-status').textContent = 'O canteiro te pegou! Quando ele piscar, pule.';
+        reset(...checkpoint);
+        return;
+      }
+      if (trick.elapsed >= (trick.kind === 'spike' ? 2.1 : 1.65)) trick.elapsed = -1;
+    }
     for (const [x,y,w] of level.platforms) {
+      if (tricks.some(trick => trick.kind === 'crumble' && trick.x === x && trick.elapsed >= .72)) continue;
       if (p.vy>=0 && before<=y+1 && p.y+28>=y && p.x+13>x && p.x<x+w) {
         p.y=y-28; p.vy=0; p.grounded=true;
         if (x>checkpoint[0]) checkpoint=[x+12,y];
@@ -433,6 +460,25 @@ body.intro-lock{overflow:hidden}
         return;
       }
     }
+    const guardian = progress === total - 1 && enemies.find(enemy => enemy.boss && enemy.hp);
+    if (guardian && Math.abs(guardian.x - p.x) < 220) {
+      shotCooldown -= dt;
+      if (shotCooldown <= 0) {
+        const direction = Math.sign(p.x - guardian.x) || -1;
+        pollen.push({x:guardian.x + direction*18, y:guardian.top-12, vx:direction*96, life:2.6});
+        shotCooldown = 2.45;
+      }
+    }
+    for (const shot of pollen) {
+      shot.x += shot.vx*dt;
+      shot.life -= dt;
+      if (shot.life > 0 && Math.abs(shot.x - p.x - 6) < 10 && shot.y > p.y+3 && shot.y < p.y+29) {
+        get('garden-status').textContent = 'Pule por cima do pólen! A guardiã acende antes de disparar.';
+        reset(...checkpoint);
+        return;
+      }
+    }
+    pollen = guardian ? pollen.filter(shot => shot.life > 0) : [];
     if (p.x>=level.gate && p.grounded) {
       if (enemies.some(enemy=>enemy.boss && enemy.hp)) {
         get('garden-status').textContent='Derrote o mini-chefe para liberar a saída.';
@@ -551,7 +597,12 @@ body.intro-lock{overflow:hidden}
       for(let i=0;i<9;i++) box('#7b9db5',i*47-(clock*12%47),264+i%3*7,20,2);
     }
     for (const [x,y,w] of level.platforms) {
+      const crumbling = tricks.find(trick => trick.kind === 'crumble' && trick.x === x);
+      if (crumbling?.elapsed >= .72) continue;
       box(level.ground,x-camera,y,w,286-y);
+      if (crumbling?.elapsed >= 0) {
+        for (let crack = 12; crack < w; crack += 17) box('#483549',x+crack-camera,y+6,3,9);
+      }
       box('#829576',x-camera,y,w,4);
       for(let i=18;i<w-6;i+=27){
         box('#b7a880',x+i-camera,y-3,2,3);
@@ -569,11 +620,28 @@ body.intro-lock{overflow:hidden}
     const x=level.gate-camera,y=level.platforms.at(-1)[1];
     if (progress===total-1) greenhouse(x-17,y-93);
     else {box('#d6a478',x+10,y-32,3,32);circle('#ffd795',x+11,y-36,6);}
+    for (const trick of tricks) {
+      if (trick.kind !== 'spike' || trick.elapsed < 0 || trick.elapsed >= 1.15) continue;
+      const x = trick.x-camera;
+      if (trick.elapsed < .52) {
+        box('#ffd18a',x-9,trick.y-3,18,3);
+      } else {
+        for (let i=0;i<4;i++) box('#dba59c',x-8+i*4,trick.y-14+i%2*4,3,14-i%2*4);
+      }
+    }
+    for (const shot of pollen) {
+      circle('#ffc76255',shot.x-camera,shot.y,8);
+      circle('#fff2ad',shot.x-camera,shot.y,4);
+    }
     for (const enemy of enemies) {
       if (!enemy.hp || enemy.grace && Math.floor(clock*18)%2) continue;
       const x=enemy.x-camera, y=enemy.top;
       const bossColor=progress===total-1?'#a65080':'#7152a0';
       if (enemy.boss) {
+        if (progress === total-1 && shotCooldown <= .67) {
+          circle('#ffcf7480',x,y-16,22);
+          circle('#fff0ad',x,y-46,4);
+        }
         box('#302641',x-16,y-23,32,23);
         box(bossColor,x-14,y-31,28,26);
         box('#e0a2b0',x-14,y-33,5,10);box('#e0a2b0',x+9,y-33,5,10);
