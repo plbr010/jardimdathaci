@@ -121,6 +121,16 @@ body.intro-lock .hero-actions .universe-trigger{visibility:hidden}
 .universe-photo.focused{z-index:40!important}
 .universe-top{top:calc(14px + env(safe-area-inset-top))}
 .universe-top h2{line-height:1.1}
+.memory-photos{display:grid;align-self:stretch;align-content:space-evenly;gap:clamp(2rem,5vw,4rem);min-width:0;padding:1rem .5rem}
+.memory-photos .photo{width:min(86%,315px);margin:0;justify-self:start;transform:rotate(-5deg)}
+.memory-photos .photo:nth-child(2){justify-self:end;transform:rotate(5deg)}
+.memory-photos .photo:nth-child(3){width:min(74%,270px);margin-inline-start:5%;transform:rotate(-3deg)}
+@media(max-width:650px){
+ .memory-photos{order:2;gap:1.1rem;align-content:start;padding:.5rem .25rem;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .memory-photos .photo,.memory-photos .photo:nth-child(3){width:90%;margin:0}
+ .memory-photos .photo:nth-child(3){grid-column:1/-1;width:min(48%,220px);justify-self:center}
+ .memory-photos figure{order:0}
+}
 </style>
 <style>
 body.intro-lock{overflow:hidden}
@@ -188,7 +198,11 @@ body.intro-lock{overflow:hidden}
 <div class="flower-border flower-border-light" aria-hidden="true"><div class="flowers"></div></div>
 <section id="nos" class="memories">
  <div class="wrap memory-grid reveal">
+  <div class="memory-photos">
+  <figure class="photo"><img loading="lazy" decoding="async" data-photo="2" alt="Thaci sentada em um balanço entre flores"><span class="empty">Foto 03</span></figure>
   <figure class="photo"><img data-photo="13" alt="Thaci tirando uma selfie no espelho"><span class="empty">Nossa segunda foto</span></figure>
+  <figure class="photo"><img loading="lazy" decoding="async" data-photo="18" alt="Thaci fazendo uma careta"><span class="empty">Foto 19</span></figure>
+  </div>
   <!-- EDITE AQUI O TEXTO DE ANIVERSÁRIO -->
   <div><p class="eyebrow">Pra você, meu amor</p><h2>O que dizer sobre você, <em>Thaciana?</em></h2>
    <p>Uma mulher com um coração tão lindo, com uma bondade tão grande que, sinceramente, às vezes eu me pergunto como você consegue ser assim. Existem situações na minha vida em que eu paro e penso: "O que a Thaciana faria no meu lugar?". E acho que isso diz muito sobre a pessoa que você é e sobre o quanto eu te admiro.</p>
@@ -204,7 +218,7 @@ body.intro-lock{overflow:hidden}
   </div>
  </div>
 <div class="wrap album album-spread" aria-label="Fotos de Pedro e Thaci">
-<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="2" alt="Foto 3 de Pedro e Thaci"><span class="empty">Foto 03</span></figure>
+
 <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="3" alt="Foto 4 de Pedro e Thaci"><span class="empty">Foto 04</span></figure>
 <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="4" alt="Foto 5 de Pedro e Thaci"><span class="empty">Foto 05</span></figure>
 <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="5" alt="Foto 6 de Pedro e Thaci"><span class="empty">Foto 06</span></figure>
@@ -234,7 +248,7 @@ body.intro-lock{overflow:hidden}
 </div>
 <div class="album-flowers" aria-hidden="true"><div class="flowers" data-small></div></div>
 <div class="wrap album album-spread" aria-label="Fotos de Pedro e Thaci">
-<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="18" alt="Foto 19 de Pedro e Thaci"><span class="empty">Foto 19</span></figure>
+
 <figure class="photo reveal photo-wide"><img loading="lazy" decoding="async" data-photo="19" alt="Foto 20 de Pedro e Thaci"><span class="empty">Foto 20</span></figure>
 </div>
 </section>
