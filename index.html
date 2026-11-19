@@ -113,60 +113,14 @@
 .hero-actions .universe-trigger{min-height:52px;padding-inline:1.5rem;gap:.5rem;cursor:pointer}
 body.intro-lock .hero-actions .universe-trigger{visibility:hidden}
 
-/* Central do Nosso Universo — versão estável para Safari/iPhone */
-.universe-heart{
-  z-index:24;
-  top:50%;
-  width:min(82vw,330px);
-  height:min(72vw,290px);
-  transform:translate(-50%,-50%);
-  border:0;
-  border-radius:0;
-  filter:none;
-  display:grid;
-  place-items:center;
-  pointer-events:none;
-  animation:universeHeartPulse 2.2s ease-in-out infinite;
-}
-.universe-heart::before{
-  content:"♡";
-  position:absolute;
-  left:50%;
-  top:50%;
-  width:auto;
-  height:auto;
-  transform:translate(-50%,-52%);
-  border:0;
-  border-radius:0;
-  color:#ffd7f1;
-  font:300 min(72vw,285px)/1 Arial,sans-serif;
-  text-shadow:0 0 10px #fff,0 0 24px #ee7bc9,0 0 52px #b8359e;
-}
-.universe-heart::after{display:none}
-.universe-message{
-  z-index:25;
-  top:50%;
-  width:min(68vw,245px);
-  box-sizing:border-box;
-  padding:.9rem .65rem;
-  border-radius:48%;
-  background:radial-gradient(ellipse,#100719e6 20%,#100719b8 58%,transparent 76%);
-  color:#fff8fc;
-  font:italic 600 clamp(.92rem,3.6vw,1.12rem)/1.38 Georgia,serif;
-  text-shadow:0 2px 7px #000,0 0 12px #8d236f;
-}
-.universe-message strong{display:inline-block;color:#ffd1ed;font-size:1.08em}
+.universe-heart{z-index:24;top:44%;width:74px;height:66px;transform:translate(-50%,-50%);border:0;filter:none;pointer-events:none;animation:none}
+.universe-heart::before,.universe-heart::after{display:none}
+.universe-heart svg{display:block;width:100%;height:100%;filter:drop-shadow(0 0 12px #ed80c5)}
+.universe-message{z-index:25;top:calc(44% + 42px);transform:translateX(-50%);width:min(60vw,320px);color:#fff5fc;font:italic 600 clamp(.94rem,3.5vw,1.23rem)/1.38 Georgia,serif;text-shadow:0 2px 8px #08020d}
+.universe-message strong{color:#ffc8e7}
 .universe-photo.focused{z-index:40!important}
-@keyframes universeHeartPulse{
-  50%{transform:translate(-50%,-50%) scale(1.055);opacity:.94}
-}
-@media(max-width:650px){
-  .universe-heart,.universe-message{top:51%}
-  .universe-heart{width:310px;height:270px}
-  .universe-heart::before{font-size:270px}
-  .universe-message{width:230px;padding:.8rem .55rem}
-}
-
+.universe-top{top:calc(14px + env(safe-area-inset-top))}
+.universe-top h2{line-height:1.1}
 </style>
 <style>
 body.intro-lock{overflow:hidden}
@@ -615,7 +569,7 @@ body.intro-lock{overflow:hidden}
  <div class="universe-top"><small>Pedro + Thaci</small><h2 id="universe-title">Nosso universo</h2></div>
  <button class="universe-close" type="button" aria-label="Fechar nosso universo">×</button>
  <div class="universe-scene" aria-label="Arraste para explorar nossas fotos">
-  <div class="universe-heart" aria-hidden="true"></div>
+  <div class="universe-heart" aria-hidden="true"><svg viewBox="0 0 76 70"><path d="M38 63C32 57 6 40 6 23C6 5 27 1 38 17C49 1 70 5 70 23C70 40 44 57 38 63Z" fill="#f48ab540" stroke="#ffd6ec" stroke-width="2.5"/></svg></div>
   <div class="universe-message">Em qualquer lugar no universo, eu escolheria <strong>VOCÊ</strong>.<br>Eu te amo o infinito vezes dois ❤️♾️</div>
  </div>
  <p class="universe-hint">↔ Arraste para explorar • toque em uma foto</p>
@@ -760,16 +714,16 @@ if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: re
   function layout(){
     const mobile=innerWidth<650;
     const rx=Math.min(innerWidth*(mobile?.43:.42),mobile?185:510);
-    const ry=Math.min(innerHeight*(mobile?.34:.31),mobile?250:280);
+    const ry=Math.min(innerHeight * .32, 310);
     photos.forEach((card,i)=>{
       const a=(i/photos.length)*Math.PI*2+rotation;
       const depth=(Math.cos(a)+1)/2;
       const x=Math.sin(a)*rx;
-      const y=Math.sin(a*2)*ry*.58 + Math.cos(a)*ry*.3;
+      const y=Math.cos(a)*ry;
       card.style.setProperty('--px',x.toFixed(1)+'px');
       card.style.setProperty('--py',y.toFixed(1)+'px');
       card.style.setProperty('--pz',(-130+depth*190).toFixed(1)+'px');
-      card.style.setProperty('--scale',(.62+depth*.48).toFixed(2));
+      card.style.setProperty('--scale',((mobile ? .45 : .55)+depth*(mobile ? .20 : .25)).toFixed(2));
       card.style.setProperty('--rot',(-7+(i*17)%15)+'deg');
       card.style.opacity=(.38+depth*.62).toFixed(2);
       if(!card.classList.contains('focused')) card.style.zIndex=String(4+Math.round(depth*8));
