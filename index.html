@@ -141,8 +141,8 @@
   </div>
   <p class="game-status" id="garden-status" aria-live="polite"></p>
   <div id="garden-finale" hidden>
-    <p>Trouxe seus lírios, meu amor. ❤️</p>
-    <button class="button hero-action" id="open-letter" type="button" aria-expanded="false">Abrir minha carta 💌</button>
+    <p id="garden-dialogue" aria-live="polite"></p>
+    <button class="button hero-action" id="open-letter" hidden type="button" aria-expanded="false">Abrir minha carta 💌</button>
     <article id="garden-letter" hidden>
       <!-- EDITE AQUI A CARTA FINAL -->
       <h3>Thaci, meu amor,</h3>
@@ -180,6 +180,19 @@
     player = {x,y:top-28,vx:0,vy:0,grounded:true,facing:1};
     camera = Math.max(0,x-125);
   }
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finaleDuration = 6.6;
+  let finaleTime = 0;
+  const dialogue = get('garden-dialogue');
+  const letterButton = get('open-letter');
+  function showFinale() {
+    const line = finaleTime < 1.65 ? 'Pedro chegou à estufa.'
+      : finaleTime < 4 ? 'Pedro: Trouxe seus lírios, meu amor. Feliz aniversário!'
+      : finaleTime < 5.4 ? 'Thaci: Vem cá, meu amor.'
+      : '❤️';
+    if (dialogue.textContent !== line) dialogue.textContent = line;
+    letterButton.hidden = finaleTime < finaleDuration;
+  }
   function stage() {
     keys.clear(); touches.clear(); jumpQueued = false;
     if (progress < total) {
@@ -194,6 +207,10 @@
     get('garden-status').textContent = progress === total ? '' : levels[progress].tip;
     panel.querySelector('.game-controls').hidden = progress === total;
     get('garden-finale').hidden = progress < total;
+    if (progress === total) {
+      finaleTime = reducedMotion ? finaleDuration : 0;
+      showFinale();
+    }
   }
   function held(action) { return keys.has(action) || [...touches.values()].includes(action); }
   const keyboard = {ArrowLeft:'left',ArrowRight:'right',ArrowUp:'jump',Space:'jump',KeyA:'left',KeyD:'right'};
@@ -218,7 +235,7 @@
     }
   }
   get('open-letter').addEventListener('click', () => {
-    if (progress !== total) return;
+    if (progress !== total || finaleTime < finaleDuration) return;
     const letter = get('garden-letter');
     letter.hidden = !letter.hidden;
     get('open-letter').setAttribute('aria-expanded',String(!letter.hidden));
@@ -355,13 +372,27 @@
       background(levels.at(-1),0);
       box('#3d5049',0,238,360,48);
       greenhouse(135,100);
-      box('#c37966',171,222,15,13);
-      lilies.forEach((lily,i)=>flower(167+i*6,208+Math.abs(2-i)*2,lily));
-      sprite(149,195,false,1,false,false,1.45);
-      sprite(191,195,true,-1,false,false,1.45);
-      pixelHeart(166,155+Math.sin(clock*2)*3);
-      circle('#ffe0ab',156,163,2);
-      circle('#ffe0ab',203,151,2);
+      const arrival = Math.min(1, finaleTime/1.65);
+      const embrace = Math.max(0, Math.min(1,(finaleTime-4.7)/.7));
+      const pedroX = 53+98*arrival+15*embrace;
+      const thaciX = 192-12*embrace;
+      const bouquetX = finaleTime < 2.25 ? pedroX+25 : 179;
+      const bouquetY = finaleTime < 2.25 ? 211 : 208;
+      if (finaleTime >= 2.25) box('#c37966',171,222,15,13);
+      lilies.forEach((lily,i)=>flower(bouquetX+(i-2)*4,bouquetY+Math.abs(2-i)*2,lily));
+      sprite(pedroX,195,false,1,arrival<1 || (embrace>0 && embrace<1),false,1.45);
+      sprite(thaciX,195,true,-1,embrace>0 && embrace<1,false,1.45);
+      if (embrace>.65) {
+        box('#e7e0d1',pedroX+12,215,15,4);
+        box('#ad7359',pedroX+25,215,4,4);
+        box('#bc6681',thaciX-7,219,15,4);
+        box('#be8159',thaciX-9,219,4,4);
+      }
+      if (finaleTime>=5.4) {
+        pixelHeart(168,155+(reducedMotion?0:Math.sin(clock*2)*3));
+        circle('#ffe0ab',157,162,2);
+        circle('#ffe0ab',205,151,2);
+      }
       return;
     }
     const level=levels[progress];
@@ -401,12 +432,15 @@
     }
     sprite(player.x-camera,player.y,false,player.facing,Boolean(player.vx),!player.grounded);
   }
-  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   function frame(now) {
     const dt=Math.min(.032,(now-last)/1000 || 0);
     last=now;
     if (!reducedMotion || progress < total) clock+=dt;
     if (progress<total) tick(dt);
+    else if (finaleTime < finaleDuration) {
+      finaleTime = Math.min(finaleDuration,finaleTime+dt);
+      showFinale();
+    }
     draw();
     requestAnimationFrame(frame);
   }
