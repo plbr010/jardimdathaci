@@ -91,10 +91,10 @@
 .universe-heart::before,.universe-heart::after{content:"";position:absolute;border:3px solid #ffd5f1;border-radius:50%;width:100%;height:100%}
 .universe-heart::before{left:50%;top:0;border-left:0}
 .universe-heart::after{left:0;top:-50%;border-bottom:0}
-.universe-message{position:absolute;z-index:4;left:50%;top:48%;transform:translate(-50%,-50%);text-align:center;width:150px;text-shadow:0 0 12px #000;font:italic 600 clamp(.9rem,3vw,1.15rem) Georgia;pointer-events:none}
+.universe-message{position:absolute;z-index:4;left:50%;top:48%;transform:translate(-50%,-50%);text-align:center;width:min(68vw,250px);text-shadow:0 0 12px #000;font:italic 600 clamp(.9rem,3vw,1.15rem) Georgia;pointer-events:none}
 .universe-photo{position:absolute;z-index:5;left:50%;top:50%;width:clamp(70px,18vw,132px);aspect-ratio:4/5;padding:5px 5px 23px;border:1px solid #ffffff66;background:#fff9ef;border-radius:5px;box-shadow:0 8px 28px #000b,0 0 18px #e69cd744;transform:translate(-50%,-50%) translate3d(var(--px),var(--py),var(--pz)) rotate(var(--rot)) scale(var(--scale));transition:transform .4s cubic-bezier(.2,.8,.2,1),opacity .4s;will-change:transform;cursor:pointer}
 .universe-photo img{width:100%;height:100%;object-fit:cover;border-radius:2px;display:block;pointer-events:none}
-.universe-photo.focused{z-index:20;--px:0px!important;--py:0px!important;--pz:220px!important;--rot:0deg!important;--scale:2.05!important}
+.universe-photo.focused{z-index:20!important;opacity:1!important;--px:0px!important;--py:0px!important;--pz:220px!important;--rot:0deg!important;--scale:2.05!important}
 .universe-hint{position:absolute;z-index:9;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translateX(-50%);margin:0;padding:.55rem .9rem;border:1px solid #ffffff25;border-radius:99px;background:#08051299;color:#eacfe5;font:.72rem system-ui;white-space:nowrap;backdrop-filter:blur(7px)}
 @keyframes universeSpark{50%{transform:rotate(25deg) scale(1.25);filter:drop-shadow(0 0 8px #fff)}}
 @keyframes twinkle{to{opacity:.18;transform:scale(.45)}}
@@ -563,7 +563,7 @@ body.intro-lock{overflow:hidden}
  <button class="universe-close" type="button" aria-label="Fechar nosso universo">×</button>
  <div class="universe-scene" aria-label="Arraste para explorar nossas fotos">
   <div class="universe-heart" aria-hidden="true"></div>
-  <div class="universe-message">Em qualquer universo,<br>eu escolheria você.</div>
+  <div class="universe-message">Em qualquer lugar no universo, eu escolheria <strong>VOCÊ</strong>.<br>Eu te amo o infinito vezes dois ❤️♾️</div>
  </div>
  <p class="universe-hint">↔ Arraste para explorar • toque em uma foto</p>
 </div>
@@ -698,6 +698,8 @@ if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: re
       if(activePhoto && activePhoto!==card) activePhoto.classList.remove('focused');
       card.classList.toggle('focused');
       activePhoto=card.classList.contains('focused')?card:null;
+      cancelAnimationFrame(raf);
+      if(!activePhoto && !reduced) animate();
     });
     return card;
   });
