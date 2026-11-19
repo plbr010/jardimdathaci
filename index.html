@@ -110,6 +110,10 @@
 }
 @media(prefers-reduced-motion:reduce){.universe-star,.universe-heart,.universe-nebula,.universe-trigger .spark{animation:none!important}}
 
+.hero .universe-top-entry{position:relative;z-index:2;display:flex;justify-content:center;padding-top:calc(1rem + env(safe-area-inset-top))}
+.hero .universe-top-entry .universe-trigger{min-height:52px;padding-inline:1.5rem;font:inherit;font-weight:700;cursor:pointer}
+body.intro-lock .universe-top-entry{visibility:hidden}
+.hero.hero-ready .universe-top-entry{animation:heroReveal .55s ease both}
 </style>
 <style>
 body.intro-lock{overflow:hidden}
@@ -166,10 +170,11 @@ body.intro-lock{overflow:hidden}
 </div>
 <main>
 <section class="hero">
+ <div class="wrap universe-top-entry"><button class="button universe-trigger" id="open-universe" type="button"><span class="spark" aria-hidden="true">✦</span> Nosso universo</button></div>
  <div class="petals" aria-hidden="true"></div>
  <!-- EDITE AQUI O TEXTO DA ABERTURA -->
  <div class="wrap hero-grid">
-  <div><p class="eyebrow">20 de novembro</p><h1>Feliz aniversário,<br><em>Thaci.</em></h1><p>Se eu pudesse te dar um jardim inteiro de lírios hoje, eu daria. Comecei por este.</p><div class="hero-actions"><a class="button hero-action" href="#nos">Ver nossas fotos <span aria-hidden="true">↓</span></a><button class="button universe-trigger" id="open-universe" type="button"><span class="spark" aria-hidden="true">✦</span> Nosso universo</button></div></div>
+  <div><p class="eyebrow">20 de novembro</p><h1>Feliz aniversário,<br><em>Thaci.</em></h1><p>Se eu pudesse te dar um jardim inteiro de lírios hoje, eu daria. Comecei por este.</p><div class="hero-actions"><a class="button hero-action" href="#nos">Ver nossas fotos <span aria-hidden="true">↓</span></a></div></div>
   <figure class="photo"><img data-photo="0" alt="Foto 1 de Pedro e Thaci"><span class="empty">Nossa primeira foto</span></figure>
  </div>
 </section>
