@@ -70,6 +70,46 @@
 .garden #garden-letter p{max-width:none;margin:0 0 .75rem}
 @media(max-width:650px){#thaci-game{margin-top:1.3rem}.game-controls button{min-height:52px}}
 
+
+/* NOSSO UNIVERSO */
+.hero-actions{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center}
+.universe-trigger{background:linear-gradient(135deg,#7e285f,#d84d95);border-color:#f3a9cb;color:#fff;box-shadow:0 10px 30px #8a245c66}
+.universe-trigger .spark{display:inline-block;animation:universeSpark 1.8s ease-in-out infinite}
+.universe{position:fixed;inset:0;z-index:10050;display:grid;background:#03020b;color:#fff;overflow:hidden;opacity:0;visibility:hidden;transition:opacity .65s ease,visibility .65s}
+.universe.open{opacity:1;visibility:visible}
+.universe-sky{position:absolute;inset:-8%;background:radial-gradient(ellipse at 50% 75%,#b0409352 0,#46207331 20%,transparent 48%),radial-gradient(circle at 50% 42%,#49235e55,transparent 38%),linear-gradient(#03020b,#080515 62%,#140621);transform:scale(1.05)}
+.universe-nebula{position:absolute;left:50%;bottom:-9%;width:min(135vw,1100px);height:45%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,#fff 0 1%,#f8ccffcc 2%,#be55b888 8%,#6f2a9d55 20%,transparent 58%);filter:blur(1px);box-shadow:0 -20px 80px #bc4fa744;animation:galaxyPulse 5s ease-in-out infinite}
+.universe-stars,.universe-scene{position:absolute;inset:0}
+.universe-star{position:absolute;width:var(--s);height:var(--s);left:var(--x);top:var(--y);border-radius:50%;background:#fff;box-shadow:0 0 8px #fff;opacity:var(--o);animation:twinkle var(--d) ease-in-out infinite alternate}
+.universe-top{position:absolute;z-index:8;top:max(18px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);text-align:center;width:min(80%,580px);pointer-events:none}
+.universe-top small{display:block;letter-spacing:.28em;text-transform:uppercase;color:#eab4dd;font:600 .66rem system-ui}
+.universe-top h2{font-size:clamp(1.8rem,7vw,4.4rem);margin:.28rem 0 0;font-weight:400;text-shadow:0 0 26px #e14cae99}
+.universe-close{position:absolute;z-index:12;right:max(14px,env(safe-area-inset-right));top:max(14px,env(safe-area-inset-top));width:46px;height:46px;border:1px solid #ffffff44;border-radius:50%;background:#10091dcc;color:#fff;font-size:1.55rem;cursor:pointer;backdrop-filter:blur(8px)}
+.universe-scene{perspective:900px;touch-action:none;cursor:grab;user-select:none}
+.universe-scene:active{cursor:grabbing}
+.universe-heart{position:absolute;z-index:3;left:50%;top:48%;width:clamp(95px,25vw,190px);height:clamp(85px,22vw,170px);transform:translate(-50%,-50%) rotate(-45deg);border:3px solid #ffd5f1;border-radius:13px 0 18px 0;filter:drop-shadow(0 0 12px #ee7bc9) drop-shadow(0 0 32px #b8359e);animation:heartBeat 2.2s ease-in-out infinite}
+.universe-heart::before,.universe-heart::after{content:"";position:absolute;border:3px solid #ffd5f1;border-radius:50%;width:100%;height:100%}
+.universe-heart::before{left:50%;top:0;border-left:0}
+.universe-heart::after{left:0;top:-50%;border-bottom:0}
+.universe-message{position:absolute;z-index:4;left:50%;top:48%;transform:translate(-50%,-50%);text-align:center;width:150px;text-shadow:0 0 12px #000;font:italic 600 clamp(.9rem,3vw,1.15rem) Georgia;pointer-events:none}
+.universe-photo{position:absolute;z-index:5;left:50%;top:50%;width:clamp(70px,18vw,132px);aspect-ratio:4/5;padding:5px 5px 23px;border:1px solid #ffffff66;background:#fff9ef;border-radius:5px;box-shadow:0 8px 28px #000b,0 0 18px #e69cd744;transform:translate(-50%,-50%) translate3d(var(--px),var(--py),var(--pz)) rotate(var(--rot)) scale(var(--scale));transition:transform .4s cubic-bezier(.2,.8,.2,1),opacity .4s;will-change:transform;cursor:pointer}
+.universe-photo img{width:100%;height:100%;object-fit:cover;border-radius:2px;display:block;pointer-events:none}
+.universe-photo.focused{z-index:20;--px:0px!important;--py:0px!important;--pz:220px!important;--rot:0deg!important;--scale:2.05!important}
+.universe-hint{position:absolute;z-index:9;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translateX(-50%);margin:0;padding:.55rem .9rem;border:1px solid #ffffff25;border-radius:99px;background:#08051299;color:#eacfe5;font:.72rem system-ui;white-space:nowrap;backdrop-filter:blur(7px)}
+@keyframes universeSpark{50%{transform:rotate(25deg) scale(1.25);filter:drop-shadow(0 0 8px #fff)}}
+@keyframes twinkle{to{opacity:.18;transform:scale(.45)}}
+@keyframes galaxyPulse{50%{transform:translateX(-50%) scale(1.06);filter:blur(3px)}}
+@keyframes heartBeat{50%{transform:translate(-50%,-50%) rotate(-45deg) scale(1.08)}}
+@media(max-width:650px){
+ .hero-actions{justify-content:center}
+ .universe-top{top:max(21px,env(safe-area-inset-top))}
+ .universe-top h2{font-size:1.85rem}
+ .universe-photo{width:clamp(66px,20vw,92px);padding:4px 4px 17px}
+ .universe-photo.focused{--scale:2.65!important}
+ .universe-heart{top:49%}.universe-message{top:49%}
+}
+@media(prefers-reduced-motion:reduce){.universe-star,.universe-heart,.universe-nebula,.universe-trigger .spark{animation:none!important}}
+
 </style>
 <style>
 body.intro-lock{overflow:hidden}
@@ -129,7 +169,7 @@ body.intro-lock{overflow:hidden}
  <div class="petals" aria-hidden="true"></div>
  <!-- EDITE AQUI O TEXTO DA ABERTURA -->
  <div class="wrap hero-grid">
-  <div><p class="eyebrow">20 de novembro</p><h1>Feliz aniversário,<br><em>Thaci.</em></h1><p>Se eu pudesse te dar um jardim inteiro de lírios hoje, eu daria. Comecei por este.</p><a class="button hero-action" href="#nos">Ver nossas fotos <span aria-hidden="true">↓</span></a></div>
+  <div><p class="eyebrow">20 de novembro</p><h1>Feliz aniversário,<br><em>Thaci.</em></h1><p>Se eu pudesse te dar um jardim inteiro de lírios hoje, eu daria. Comecei por este.</p><div class="hero-actions"><a class="button hero-action" href="#nos">Ver nossas fotos <span aria-hidden="true">↓</span></a><button class="button universe-trigger" id="open-universe" type="button"><span class="spark" aria-hidden="true">✦</span> Nosso universo</button></div></div>
   <figure class="photo"><img data-photo="0" alt="Foto 1 de Pedro e Thaci"><span class="empty">Nossa primeira foto</span></figure>
  </div>
 </section>
@@ -510,6 +550,20 @@ body.intro-lock{overflow:hidden}
 </section>
 </main>
 
+<div class="universe" id="our-universe" role="dialog" aria-modal="true" aria-labelledby="universe-title" aria-hidden="true">
+ <div class="universe-sky" aria-hidden="true"></div>
+ <div class="universe-stars" aria-hidden="true"></div>
+ <div class="universe-nebula" aria-hidden="true"></div>
+ <div class="universe-top"><small>Pedro + Thaci</small><h2 id="universe-title">Nosso universo</h2></div>
+ <button class="universe-close" type="button" aria-label="Fechar nosso universo">×</button>
+ <div class="universe-scene" aria-label="Arraste para explorar nossas fotos">
+  <div class="universe-heart" aria-hidden="true"></div>
+  <div class="universe-message">Em qualquer universo,<br>eu escolheria você.</div>
+ </div>
+ <p class="universe-hint">↔ Arraste para explorar • toque em uma foto</p>
+</div>
+
+
 <script>
 // Coloque os arquivos de imagem na mesma pasta, ou ajuste estes caminhos.
 // Ao integrar o jogo, preencha game com o caminho ou link que o Claude entregar.
@@ -604,5 +658,100 @@ if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: re
   setTimeout(finishIntro, reduced ? 300 : 5900);
 })();
 </script>
+
+<script>
+(() => {
+  const modal=document.getElementById('our-universe');
+  const openButton=document.getElementById('open-universe');
+  const closeButton=modal.querySelector('.universe-close');
+  const scene=modal.querySelector('.universe-scene');
+  const stars=modal.querySelector('.universe-stars');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let rotation=0, dragging=false, startX=0, startRotation=0, activePhoto=null, raf=0;
+
+  for(let i=0;i<76;i++){
+    const star=document.createElement('i');
+    star.className='universe-star';
+    star.style.setProperty('--x',((i*47)%101)+'%');
+    star.style.setProperty('--y',((i*i*13+7)%97)+'%');
+    star.style.setProperty('--s',(1+(i%4)*.65)+'px');
+    star.style.setProperty('--o',(.3+(i%7)*.1).toFixed(1));
+    star.style.setProperty('--d',(1.2+(i%6)*.45)+'s');
+    stars.append(star);
+  }
+
+  const photos=gift.photos.map((src,i)=>{
+    const card=document.createElement('button');
+    card.type='button';
+    card.className='universe-photo';
+    card.setAttribute('aria-label','Ampliar foto '+(i+1));
+    const img=document.createElement('img');
+    img.src=src; img.alt='Uma memória de Pedro e Thaci';
+    card.append(img); scene.append(card);
+    card.addEventListener('click',event=>{
+      event.stopPropagation();
+      if(activePhoto && activePhoto!==card) activePhoto.classList.remove('focused');
+      card.classList.toggle('focused');
+      activePhoto=card.classList.contains('focused')?card:null;
+    });
+    return card;
+  });
+
+  function layout(){
+    const mobile=innerWidth<650;
+    const rx=Math.min(innerWidth*(mobile?.43:.42),mobile?185:510);
+    const ry=Math.min(innerHeight*(mobile?.34:.31),mobile?250:280);
+    photos.forEach((card,i)=>{
+      const a=(i/photos.length)*Math.PI*2+rotation;
+      const depth=(Math.cos(a)+1)/2;
+      const x=Math.sin(a)*rx;
+      const y=Math.sin(a*2)*ry*.58 + Math.cos(a)*ry*.3;
+      card.style.setProperty('--px',x.toFixed(1)+'px');
+      card.style.setProperty('--py',y.toFixed(1)+'px');
+      card.style.setProperty('--pz',(-130+depth*190).toFixed(1)+'px');
+      card.style.setProperty('--scale',(.62+depth*.48).toFixed(2));
+      card.style.setProperty('--rot',(-7+(i*17)%15)+'deg');
+      card.style.opacity=(.38+depth*.62).toFixed(2);
+      if(!card.classList.contains('focused')) card.style.zIndex=String(4+Math.round(depth*8));
+    });
+  }
+  function openUniverse(){
+    modal.classList.add('open');modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';rotation=0;layout();
+    setTimeout(()=>closeButton.focus(),80);
+    if(!reduced) animate();
+  }
+  function closeUniverse(){
+    modal.classList.remove('open');modal.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+    if(activePhoto){activePhoto.classList.remove('focused');activePhoto=null}
+    cancelAnimationFrame(raf);openButton.focus();
+  }
+  function animate(){
+    if(!modal.classList.contains('open')||dragging||activePhoto)return;
+    rotation+=.0007;layout();raf=requestAnimationFrame(animate);
+  }
+  function pointX(e){return e.touches?e.touches[0].clientX:e.clientX}
+  function begin(e){
+    if(e.target.closest('.universe-photo'))return;
+    dragging=true;startX=pointX(e);startRotation=rotation;cancelAnimationFrame(raf);
+  }
+  function move(e){
+    if(!dragging)return;
+    rotation=startRotation+(pointX(e)-startX)*.006;layout();
+    if(e.cancelable)e.preventDefault();
+  }
+  function end(){if(!dragging)return;dragging=false;if(!reduced)animate()}
+  openButton.addEventListener('click',openUniverse);
+  closeButton.addEventListener('click',closeUniverse);
+  scene.addEventListener('click',()=>{if(activePhoto){activePhoto.classList.remove('focused');activePhoto=null;if(!reduced)animate()}});
+  scene.addEventListener('mousedown',begin);window.addEventListener('mousemove',move);window.addEventListener('mouseup',end);
+  scene.addEventListener('touchstart',begin,{passive:true});scene.addEventListener('touchmove',move,{passive:false});scene.addEventListener('touchend',end);
+  window.addEventListener('resize',layout);
+  window.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeUniverse()});
+  layout();
+})();
+</script>
+
 </body>
 </html>
