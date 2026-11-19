@@ -172,17 +172,8 @@
     {name:'lilás', petals:['#cab0ff','#a287e6','#efe1ff'], center:'#ffe398'},
     {name:'coral', petals:['#ff917b','#e96a68','#ffb5a5'], center:'#ffdf83'}
   ];
-  const saveKey = 'jardim-thaci-progresso-v2';
   const total = levels.length;
   let progress = 0, picked = false;
-  try {
-    const data = JSON.parse(localStorage.getItem(saveKey));
-    if (Number.isInteger(data?.progress) && data.progress >= 0 && data.progress <= total) {
-      progress = data.progress;
-      picked = data.picked === true;
-    }
-  } catch {}
-  function save() { try { localStorage.setItem(saveKey, JSON.stringify({progress,picked})); } catch {} }
   const keys = new Set(), touches = new Map();
   let player, checkpoint, enemies = [], jumpQueued = false, camera = 0, last = 0, clock = 0, running = false;
   function reset(x, top) {
@@ -256,7 +247,7 @@
     if (p.y>310) {reset(...checkpoint);return;}
     camera = Math.max(0,Math.min(level.gate-220,p.x-125));
     if (!picked && Math.abs(p.x+6-level.flower[0])<21 && Math.abs(p.y+14-level.flower[1])<23) {
-      picked=true; save();
+      picked=true;
       get('garden-lilies').textContent=`Lírios ${progress+1}/${total}`;
       get('garden-status').textContent=`Lírio ${lilies[progress].name} coletado! Siga até a saída.`;
     }
@@ -290,7 +281,7 @@
         return;
       }
       if (!picked) {get('garden-status').textContent='O lírio desta fase ainda está pelo caminho.';return;}
-      progress++; picked=false; save(); stage();
+      progress++; picked=false; stage();
     }
   }
   function box(color,x,y,w,h) {ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),w,h);}
