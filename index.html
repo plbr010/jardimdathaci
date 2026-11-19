@@ -317,7 +317,8 @@ body.intro-lock{overflow:hidden}
   const total = levels.length;
   let progress = 0, picked = false;
   const keys = new Set(), touches = new Map();
-  let player, checkpoint, enemies = [], jumpQueued = false, camera = 0, last = 0, clock = 0, running = false;
+  let blast = null;
+  let player, enemies = [], jumpQueued = false, camera = 0, last = 0, clock = 0, running = false;
   function reset(x, top) {
     player = {x,y:top-28,vx:0,vy:0,grounded:true,facing:1,jumpBuffer:0,coyote:0};
     camera = Math.max(0,x-125);
@@ -341,12 +342,12 @@ body.intro-lock{overflow:hidden}
   function stage() {
     keys.clear(); touches.clear(); jumpQueued = false;
     if (progress < total) {
-      checkpoint = [28,levels[progress].platforms[0][1]];
+      blast = null;
       enemies = levels[progress].enemies.map(([x,top,range,speed,hits]) => ({
         origin:x, x, top, range, speed, hp:hits ?? 1, boss:Boolean(hits), time:0, grace:0
       }));
       tricks = (tricksByLevel[progress] ?? []).map(trick => ({...trick, elapsed:-1}));
-      reset(...checkpoint);
+      reset(28, levels[progress].platforms[0][1]);
     }
     get('garden-level').textContent = progress === total ? 'Em casa' : `Fase ${progress+1} · ${levels[progress].name}`;
     get('garden-lilies').textContent = `Lírios ${Math.min(total,progress+Number(picked))}/${total}`;
@@ -388,10 +389,18 @@ body.intro-lock{overflow:hidden}
     get('open-letter').textContent = letter.hidden ? 'Abrir minha carta 💌' : 'Fechar carta';
     if (!letter.hidden) letter.scrollIntoView({block:'nearest'});
   });
+  function restartPhase() {
+    picked = false;
+    stage();
+    get('garden-status').textContent = 'De volta ao começo da fase. Os inimigos recuperaram toda a vida.';
+  }
   function tick(dt) {
     const level = levels[progress], p = player;
     const direction = Number(held('right')) - Number(held('left'));
-    p.vx = direction*160;
+    const targetSpeed = direction * 168;
+    const response = direction ? 17 : 24;
+    p.vx += (targetSpeed - p.vx) * (1 - Math.exp(-response * dt));
+    if (!direction && Math.abs(p.vx) < 1) p.vx = 0;
     if (direction) p.facing = direction;
     p.jumpBuffer = jumpQueued ? .13 : Math.max(0,p.jumpBuffer-dt);
     p.coyote = p.grounded ? .10 : Math.max(0,p.coyote-dt);
@@ -416,7 +425,7 @@ body.intro-lock{overflow:hidden}
       if (trick.kind === 'spike' && trick.elapsed >= .52 && trick.elapsed < 1.15 &&
           Math.abs(center - trick.x) < 13 && p.y + 28 > trick.y - 14 && p.y < trick.y) {
         get('garden-status').textContent = 'O canteiro te pegou! Quando ele piscar, pule.';
-        reset(...checkpoint);
+        restartPhase();
         return;
       }
       if (trick.elapsed >= (trick.kind === 'spike' ? 2.1 : 1.65)) trick.elapsed = -1;
@@ -425,11 +434,11 @@ body.intro-lock{overflow:hidden}
       if (tricks.some(trick => trick.kind === 'crumble' && trick.x === x && trick.elapsed >= .72)) continue;
       if (p.vy>=0 && before<=y+1 && p.y+28>=y && p.x+13>x && p.x<x+w) {
         p.y=y-28; p.vy=0; p.grounded=true;
-        if (x>checkpoint[0] && !tricks.some(trick => trick.kind === 'crumble' && trick.x === x)) checkpoint=[x+12,y];
+
         break;
       }
     }
-    if (p.y>310) {reset(...checkpoint);return;}
+    if (p.y>310) {restartPhase();return;}
     camera = Math.max(0,Math.min(level.gate-220,p.x-125));
     if (!picked && Math.abs(p.x+6-level.flower[0])<21 && Math.abs(p.y+14-level.flower[1])<23) {
       picked=true;
@@ -447,6 +456,11 @@ body.intro-lock{overflow:hidden}
           p.y+28<head || p.y>enemy.top) continue;
       if (p.vy>0 && before<=head+4) {
         enemy.hp--;
+        if (progress === total-1 && enemy.boss && enemy.hp === 0) {
+          blast = {time:4.5, x:enemy.x, resolved:false};
+          pollen = [];
+          get('garden-status').textContent = 'Vai explodir! Volte para a plataforma anterior!';
+        }
         if (progress === total-1 && enemy.boss && enemy.hp === 2) shotCooldown = Math.min(shotCooldown, .85);
         enemy.grace=.55;
         p.vy=-280;
@@ -457,9 +471,23 @@ body.intro-lock{overflow:hidden}
       } else {
         get('garden-status').textContent='Quase! Pule e caia por cima para acertar.';
         enemy.grace=.8;
-        reset(...checkpoint);
+        restartPhase();
         return;
       }
+    }
+    if (blast && !blast.resolved) {
+      blast.time -= dt;
+      if (blast.time <= 0) {
+        const [safeX, safeY, safeWidth] = level.platforms.at(-2);
+        const onSafeBlock = p.grounded && Math.abs(p.y+28-safeY) < 1 &&
+          p.x+6 >= safeX && p.x+6 <= safeX+safeWidth;
+        if (!onSafeBlock) { restartPhase(); return; }
+        blast.resolved = true;
+        blast.time = .65;
+        get('garden-status').textContent = 'Você escapou! Agora atravesse e vá para casa.';
+      }
+    } else if (blast) {
+      blast.time = Math.max(0,blast.time-dt);
     }
     const guardian = progress === total - 1 && enemies.find(enemy => enemy.boss && enemy.hp);
     if (guardian && Math.abs(guardian.x - p.x) < 220) {
@@ -475,12 +503,12 @@ body.intro-lock{overflow:hidden}
       shot.life -= dt;
       if (shot.life > 0 && Math.abs(shot.x - p.x - 6) < 10 && shot.y > p.y+3 && shot.y < p.y+29) {
         get('garden-status').textContent = 'Pule por cima do pólen! A guardiã acende antes de disparar.';
-        reset(...checkpoint);
+        restartPhase();
         return;
       }
     }
     pollen = guardian ? pollen.filter(shot => shot.life > 0) : [];
-    if (p.x>=level.gate && p.grounded) {
+    if (p.x>=level.gate && p.grounded && (!blast || blast.resolved)) {
       if (enemies.some(enemy=>enemy.boss && enemy.hp)) {
         get('garden-status').textContent='Derrote o mini-chefe para liberar a saída.';
         return;
@@ -598,6 +626,7 @@ body.intro-lock{overflow:hidden}
       for(let i=0;i<9;i++) box('#7b9db5',i*47-(clock*12%47),264+i%3*7,20,2);
     }
     for (const [x,y,w] of level.platforms) {
+      if (x+w < camera || x > camera+360) continue;
       const crumbling = tricks.find(trick => trick.kind === 'crumble' && trick.x === x);
       if (crumbling?.elapsed >= .72) continue;
       box(level.ground,x-camera,y,w,286-y);
@@ -654,7 +683,19 @@ body.intro-lock{overflow:hidden}
         box('#4d3764',x-4,y-15,8,13);box('#ffe5ab',x+1,y-12,2,2);
       }
     }
-    sprite(player.x-camera,player.y,false,player.facing,Boolean(player.vx),!player.grounded);
+    if (blast && !blast.resolved) {
+      const [safeX,safeY,safeWidth] = level.platforms.at(-2);
+      box('#a9e5bb',safeX-camera,safeY,safeWidth,4);
+      circle('#ff684b',blast.x-camera,213,10 + Math.sin(clock*18)*3);
+      ctx.fillStyle = '#fff4d8';
+      ctx.font = 'bold 12px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText('← PLATAFORMA SEGURA · ' + Math.max(1,Math.ceil(blast.time)) + 's',180,27);
+      ctx.textAlign = 'start';
+    } else if (blast?.time > 0) {
+      circle('#ff85565c',blast.x-camera,213,35 + (1-blast.time/.65)*210);
+    }
+    sprite(player.x-camera,player.y,false,player.facing,Math.abs(player.vx)>10,!player.grounded);
   }
   function frame(now) {
     const dt=Math.min(.032,(now-last)/1000 || 0);
