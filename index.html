@@ -112,6 +112,61 @@
 
 .hero-actions .universe-trigger{min-height:52px;padding-inline:1.5rem;gap:.5rem;cursor:pointer}
 body.intro-lock .hero-actions .universe-trigger{visibility:hidden}
+
+/* Central do Nosso Universo — versão estável para Safari/iPhone */
+.universe-heart{
+  z-index:24;
+  top:50%;
+  width:min(82vw,330px);
+  height:min(72vw,290px);
+  transform:translate(-50%,-50%);
+  border:0;
+  border-radius:0;
+  filter:none;
+  display:grid;
+  place-items:center;
+  pointer-events:none;
+  animation:universeHeartPulse 2.2s ease-in-out infinite;
+}
+.universe-heart::before{
+  content:"♡";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:auto;
+  height:auto;
+  transform:translate(-50%,-52%);
+  border:0;
+  border-radius:0;
+  color:#ffd7f1;
+  font:300 min(72vw,285px)/1 Arial,sans-serif;
+  text-shadow:0 0 10px #fff,0 0 24px #ee7bc9,0 0 52px #b8359e;
+}
+.universe-heart::after{display:none}
+.universe-message{
+  z-index:25;
+  top:50%;
+  width:min(68vw,245px);
+  box-sizing:border-box;
+  padding:.9rem .65rem;
+  border-radius:48%;
+  background:radial-gradient(ellipse,#100719e6 20%,#100719b8 58%,transparent 76%);
+  color:#fff8fc;
+  font:italic 600 clamp(.92rem,3.6vw,1.12rem)/1.38 Georgia,serif;
+  text-shadow:0 2px 7px #000,0 0 12px #8d236f;
+}
+.universe-message strong{display:inline-block;color:#ffd1ed;font-size:1.08em}
+.universe-photo.focused{z-index:40!important}
+@keyframes universeHeartPulse{
+  50%{transform:translate(-50%,-50%) scale(1.055);opacity:.94}
+}
+@media(max-width:650px){
+  .universe-heart,.universe-message{top:51%}
+  .universe-heart{width:310px;height:270px}
+  .universe-heart::before{font-size:270px}
+  .universe-message{width:230px;padding:.8rem .55rem}
+}
+
 </style>
 <style>
 body.intro-lock{overflow:hidden}
