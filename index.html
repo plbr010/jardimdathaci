@@ -76,19 +76,21 @@ body.intro-lock{overflow:hidden}
 .birthday-intro{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 72%,#32172d 0,#160d1d 48%,#090811 100%);transition:opacity .9s ease,visibility .9s}
 .birthday-intro.done{opacity:0;visibility:hidden;pointer-events:none}
 .intro-sky{position:absolute;inset:0;background:radial-gradient(circle at 50% 56%,#6e274c33,transparent 42%);animation:introGlow 5.7s ease both}
-.intro-flower{position:relative;width:min(80vw,350px);height:min(72vh,470px);filter:drop-shadow(0 0 22px #fa7dac35)}
-.intro-stem{position:absolute;left:50%;bottom:5%;width:6px;height:0;border-radius:99px;background:linear-gradient(90deg,#287147,#55b46d,#245b3d);transform:translateX(-50%);animation:growStem 1.55s .35s cubic-bezier(.16,.8,.3,1) forwards}
-.intro-leaf{position:absolute;bottom:22%;left:50%;width:0;height:0;border-radius:100% 0 100% 0;background:linear-gradient(135deg,#4bb66b,#17603f);transform-origin:0 100%;opacity:0}
-.intro-leaf.left{animation:leafLeft .8s 1.25s cubic-bezier(.2,.8,.2,1) forwards}
-.intro-leaf.right{animation:leafRight .8s 1.55s cubic-bezier(.2,.8,.2,1) forwards}
-.intro-bloom{position:absolute;left:50%;bottom:55%;width:132px;height:132px;transform:translate(-50%,50%) scale(0);animation:bloomOpen 1.35s 2s cubic-bezier(.15,.9,.25,1.15) forwards}
-.intro-petal{position:absolute;left:50%;top:50%;width:53px;height:82px;border-radius:70% 70% 55% 55%;background:radial-gradient(circle at 50% 28%,#fff7e6 0 13%,#f8bfd0 48%,#d96c9c 100%);transform-origin:50% 92%;box-shadow:inset 0 -8px 14px #b8427566,0 0 16px #ff9fc466}
-.intro-petal:nth-child(1){transform:translate(-50%,-91%) rotate(0)}
-.intro-petal:nth-child(2){transform:translate(-50%,-91%) rotate(72deg)}
-.intro-petal:nth-child(3){transform:translate(-50%,-91%) rotate(144deg)}
-.intro-petal:nth-child(4){transform:translate(-50%,-91%) rotate(216deg)}
-.intro-petal:nth-child(5){transform:translate(-50%,-91%) rotate(288deg)}
-.intro-core{position:absolute;left:50%;top:50%;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle,#fff2a8,#e6a34e 65%,#ba673c);transform:translate(-50%,-50%);box-shadow:0 0 18px #ffd884}
+.intro-flower{position:absolute;left:50%;bottom:23%;transform:translateX(-50%);width:min(88vw,410px);height:min(53vh,390px)}
+.bouquet-stalk{position:absolute;bottom:0;left:50%;height:var(--length);width:5px;transform-origin:bottom center;transform:rotate(var(--angle))}
+.intro-stem{position:absolute;inset:0;border-radius:99px;background:linear-gradient(90deg,#287147,#68bc80,#245b3d);transform-origin:bottom;animation:growStem 1.3s var(--wait) cubic-bezier(.16,.8,.3,1) both}
+.intro-leaf{position:absolute;left:1px;bottom:35%;width:clamp(38px,11vw,72px);height:16px;border-radius:100% 0;background:linear-gradient(150deg,#76c889,#216749);transform-origin:left center;animation:leafOpen .8s calc(.65s + var(--wait)) ease both}
+.bouquet-stalk:nth-child(even) .intro-leaf{rotate:210deg}
+.intro-bloom{position:absolute;top:0;left:50%;width:clamp(65px,20vw,108px);aspect-ratio:1;animation:bloomOpen 1.2s calc(1.35s + var(--wait)) cubic-bezier(.15,.9,.25,1.12) both}
+.intro-petal{position:absolute;inset:0;background:linear-gradient(to bottom,#fff7ee,var(--pink) 30%,#a53165 52%);clip-path:polygon(50% 0,62% 14%,67% 26%,63% 36%,50% 51%,37% 36%,33% 26%,38% 14%);border-radius:50%}
+.intro-petal:nth-child(1){rotate:0deg}
+.intro-petal:nth-child(2){rotate:60deg}
+.intro-petal:nth-child(3){rotate:120deg}
+.intro-petal:nth-child(4){rotate:180deg}
+.intro-petal:nth-child(5){rotate:240deg}
+.intro-petal:nth-child(6){rotate:300deg}
+.intro-stamens{position:absolute;inset:29%;border-radius:50%;background:radial-gradient(circle at 50% 14%,#a95034 0 6%,transparent 8%),radial-gradient(circle at 78% 35%,#ac613b 0 6%,transparent 8%),radial-gradient(circle at 70% 73%,#b86637 0 6%,transparent 8%),radial-gradient(circle at 25% 62%,#a65035 0 6%,transparent 8%),radial-gradient(circle at 50% 50%,#ffe0a0 0 18%,transparent 23%)}
+.bouquet-tie{position:absolute;bottom:3%;left:50%;width:46px;height:17px;background:#e789a7;clip-path:polygon(0 0,50% 34%,100% 0,92% 100%,50% 66%,8% 100%);translate:-50% 0;animation:introGlow .45s 2.4s both}
 .intro-title{position:absolute;left:50%;bottom:8%;width:max-content;max-width:92vw;text-align:center;color:#ffe9d7;transform:translateX(-50%);opacity:0;animation:titleIn 1s 3.25s ease forwards}
 .intro-title span{display:block;font:.7rem/1.4 system-ui;letter-spacing:.28em;text-transform:uppercase;color:#eeb4c7}
 .intro-title strong{display:block;margin-top:.3rem;font:400 clamp(2.1rem,9vw,4rem)/1 Georgia,serif}
@@ -96,10 +98,9 @@ body.intro-lock{overflow:hidden}
 .intro-spark{position:absolute;width:3px;height:3px;border-radius:50%;background:#ffe6ad;box-shadow:0 0 8px #ffe6ad;opacity:0;animation:sparkFloat var(--dur) var(--delay) ease-in infinite}
 .intro-skip{position:absolute;right:max(18px,env(safe-area-inset-right));top:max(18px,env(safe-area-inset-top));border:1px solid #f5b6c688;background:#1b1020aa;color:#ffe8dd;border-radius:999px;padding:.55rem .9rem;font:600 .75rem system-ui;cursor:pointer}
 .hero.hero-ready .hero-grid{animation:heroReveal 1s ease both}
-@keyframes growStem{to{height:52%}}
-@keyframes leafLeft{from{opacity:0;width:0;height:0;transform:translate(-2px,0) rotate(-15deg)}to{opacity:1;width:82px;height:42px;transform:translate(-2px,0) rotate(-38deg)}}
-@keyframes leafRight{from{opacity:0;width:0;height:0;transform:translate(2px,-48px) rotate(165deg)}to{opacity:1;width:76px;height:39px;transform:translate(2px,-48px) rotate(205deg)}}
-@keyframes bloomOpen{0%{transform:translate(-50%,50%) scale(0) rotate(-18deg)}70%{transform:translate(-50%,50%) scale(1.12) rotate(3deg)}100%{transform:translate(-50%,50%) scale(1) rotate(0)}}
+@keyframes growStem{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes leafOpen{from{opacity:0;transform:rotate(-18deg) scaleX(0)}to{opacity:1;transform:rotate(-30deg) scaleX(1)}}
+@keyframes bloomOpen{from{opacity:0;transform:translate(-50%,-50%) scale(.08) rotate(-18deg)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 @keyframes heartFloat{0%{opacity:0;transform:translate3d(0,0,0) scale(.6) rotate(-8deg)}15%{opacity:.8}100%{opacity:0;transform:translate3d(var(--drift),-105vh,0) scale(1.25) rotate(18deg)}}
 @keyframes sparkFloat{0%{opacity:0;transform:translateY(0)}20%{opacity:.9}100%{opacity:0;transform:translateY(-75vh)}}
 @keyframes titleIn{from{opacity:0;transform:translate(-50%,18px)}to{opacity:1;transform:translate(-50%,0)}}
@@ -111,8 +112,14 @@ body.intro-lock{overflow:hidden}
 <div class="birthday-intro" id="birthday-intro" role="dialog" aria-label="Uma surpresa para Thaci">
  <div class="intro-sky"></div>
  <div class="intro-flower" aria-hidden="true">
-  <i class="intro-stem"></i><i class="intro-leaf left"></i><i class="intro-leaf right"></i>
-  <div class="intro-bloom"><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-core"></i></div>
+  <div class="bouquet-stalk" style="--angle:-30deg;--length:64%;--pink:#ffb4c8;--wait:0.00s"><i class="intro-stem"></i><i class="intro-leaf"></i><div class="intro-bloom"><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-stamens"></i></div></div>
+  <div class="bouquet-stalk" style="--angle:-16deg;--length:78%;--pink:#fff0eb;--wait:0.17s"><i class="intro-stem"></i><i class="intro-leaf"></i><div class="intro-bloom"><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-stamens"></i></div></div>
+  <div class="bouquet-stalk" style="--angle:0deg;--length:96%;--pink:#ff9abb;--wait:0.34s"><i class="intro-stem"></i><i class="intro-leaf"></i><div class="intro-bloom"><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-stamens"></i></div></div>
+  <div class="bouquet-stalk" style="--angle:16deg;--length:81%;--pink:#ffe4ee;--wait:0.51s"><i class="intro-stem"></i><i class="intro-leaf"></i><div class="intro-bloom"><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-stamens"></i></div></div>
+  <div class="bouquet-stalk" style="--angle:30deg;--length:67%;--pink:#f4b3dd;--wait:0.68s"><i class="intro-stem"></i><i class="intro-leaf"></i><div class="intro-bloom"><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-stamens"></i></div></div>
+  <div class="bouquet-stalk" style="--angle:-8deg;--length:62%;--pink:#ffd5df;--wait:0.85s"><i class="intro-stem"></i><i class="intro-leaf"></i><div class="intro-bloom"><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-stamens"></i></div></div>
+  <div class="bouquet-stalk" style="--angle:9deg;--length:60%;--pink:#fff1e1;--wait:1.02s"><i class="intro-stem"></i><i class="intro-leaf"></i><div class="intro-bloom"><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-stamens"></i></div></div>
+  <div class="bouquet-tie"></div>
  </div>
  <div class="intro-title"><span>Um jardim nasceu pra você</span><strong>Feliz aniversário, Thaci.</strong></div>
  <button class="intro-skip" type="button">Pular animação</button>
