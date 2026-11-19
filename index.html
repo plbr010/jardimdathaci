@@ -34,6 +34,27 @@
 }
 .photo-caption{margin:.7rem .2rem 0;text-align:center;font-size:.9rem;line-height:1.35;color:#683d51}
 .album .photo-wide{grid-column:span 2;aspect-ratio:4/3;transform:rotate(-1deg)}
+.album.album-spread{width:min(900px,86%);grid-template-columns:repeat(12,minmax(0,1fr));align-items:center;gap:clamp(1rem,4vw,3rem) 0;padding:2rem 0}
+.album-spread>:nth-child(odd){grid-column:1 / span 6}
+.album-spread>:nth-child(even){grid-column:8 / span 5}
+.album-spread.album-reverse>:nth-child(odd){grid-column:2 / span 5}
+.album-spread.album-reverse>:nth-child(even){grid-column:8 / span 5}
+.album-spread>:nth-child(4n+2){transform:translateY(clamp(.5rem,4vw,3rem)) rotate(3deg)}
+.album-spread .photo-wide{grid-column:1 / -1;width:min(100%,680px);justify-self:center}
+.album-spread:last-child>:first-child{grid-column:4 / span 6}
+.album-flowers{padding:1rem 0}
+.album-flowers .flowers{width:min(235px,56%);gap:10px}
+.album-flowers .lily{flex-basis:66px}
+.enhanced .album-spread .reveal{transition:opacity .85s,translate .85s,scale .85s}
+.enhanced .album-spread .reveal.pending{translate:0 28px;scale:.96}
+.enhanced .album-spread>:nth-child(even) .reveal.pending,.enhanced .album-spread>.reveal.pending:nth-child(even){translate:0 46px}
+@media(max-width:650px){
+  .album.album-spread{width:auto;margin-inline:clamp(20px,7vw,32px);gap:1.5rem 0}
+  .album-spread>:nth-child(odd),.album-spread.album-reverse>:nth-child(odd){grid-column:1 / span 6}
+  .album-spread>:nth-child(even),.album-spread.album-reverse>:nth-child(even){grid-column:8 / span 5}
+  .album-spread .photo-wide{grid-column:1 / -1}
+  .album-spread:last-child>:first-child{grid-column:3 / span 8}
+}
 </style>
 <body>
 <main>
@@ -56,32 +77,41 @@
    <p>Feliz vida, meu amor. Eu te amo.</p>
   </div>
  </div>
-<div class="wrap album" aria-label="Fotos de Pedro e Thaci">
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="2" alt="Foto 3 de Pedro e Thaci"><span class="empty">Foto 03</span></figure>
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="3" alt="Foto 4 de Pedro e Thaci"><span class="empty">Foto 04</span></figure>
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="4" alt="Foto 5 de Pedro e Thaci"><span class="empty">Foto 05</span></figure>
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="5" alt="Foto 6 de Pedro e Thaci"><span class="empty">Foto 06</span></figure>
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="6" alt="Foto 7 de Pedro e Thaci"><span class="empty">Foto 07</span></figure>
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="7" alt="Foto 8 de Pedro e Thaci"><span class="empty">Foto 08</span></figure>
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="8" alt="Foto 9 de Pedro e Thaci"><span class="empty">Foto 09</span></figure>
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="9" alt="Foto 10 de Pedro e Thaci"><span class="empty">Foto 10</span></figure>
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="10" alt="Foto 11 de Pedro e Thaci"><span class="empty">Foto 11</span></figure>
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="11" alt="Foto 12 de Pedro e Thaci"><span class="empty">Foto 12</span></figure>
+<div class="wrap album album-spread" aria-label="Fotos de Pedro e Thaci">
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="2" alt="Foto 3 de Pedro e Thaci"><span class="empty">Foto 03</span></figure>
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="3" alt="Foto 4 de Pedro e Thaci"><span class="empty">Foto 04</span></figure>
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="4" alt="Foto 5 de Pedro e Thaci"><span class="empty">Foto 05</span></figure>
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="5" alt="Foto 6 de Pedro e Thaci"><span class="empty">Foto 06</span></figure>
 </div>
-</section>
-<div class="memories"><div class="wrap album" aria-label="Fotos de Pedro e Thaci">
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="12" alt="Foto 13 de Pedro e Thaci"><span class="empty">Foto 13</span></figure>
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="13" alt="Foto 14 de Pedro e Thaci"><span class="empty">Foto 14</span></figure>
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="14" alt="Foto 15 de Pedro e Thaci"><span class="empty">Foto 15</span></figure>
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="15" alt="Foto 16 de Pedro e Thaci"><span class="empty">Foto 16</span></figure>
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="16" alt="Foto 17 de Pedro e Thaci"><span class="empty">Foto 17</span></figure>
- <div class="captioned-photo"><figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="17" alt="Foto 18 de Pedro e Thaci"><span class="empty">Foto 18</span></figure>
+<div class="album-flowers" aria-hidden="true"><div class="flowers" data-small></div></div>
+<div class="wrap album album-spread album-reverse" aria-label="Fotos de Pedro e Thaci">
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="6" alt="Foto 7 de Pedro e Thaci"><span class="empty">Foto 07</span></figure>
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="7" alt="Foto 8 de Pedro e Thaci"><span class="empty">Foto 08</span></figure>
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="8" alt="Foto 9 de Pedro e Thaci"><span class="empty">Foto 09</span></figure>
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="9" alt="Foto 10 de Pedro e Thaci"><span class="empty">Foto 10</span></figure>
+</div>
+<div class="album-flowers" aria-hidden="true"><div class="flowers" data-small></div></div>
+<div class="wrap album album-spread" aria-label="Fotos de Pedro e Thaci">
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="10" alt="Foto 11 de Pedro e Thaci"><span class="empty">Foto 11</span></figure>
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="11" alt="Foto 12 de Pedro e Thaci"><span class="empty">Foto 12</span></figure>
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="12" alt="Foto 13 de Pedro e Thaci"><span class="empty">Foto 13</span></figure>
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="13" alt="Foto 14 de Pedro e Thaci"><span class="empty">Foto 14</span></figure>
+</div>
+<div class="album-flowers" aria-hidden="true"><div class="flowers" data-small></div></div>
+<div class="wrap album album-spread album-reverse" aria-label="Fotos de Pedro e Thaci">
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="14" alt="Foto 15 de Pedro e Thaci"><span class="empty">Foto 15</span></figure>
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="15" alt="Foto 16 de Pedro e Thaci"><span class="empty">Foto 16</span></figure>
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="16" alt="Foto 17 de Pedro e Thaci"><span class="empty">Foto 17</span></figure>
+<div class="captioned-photo"><figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="17" alt="Foto 18 de Pedro e Thaci"><span class="empty">Foto 18</span></figure>
  <!-- EDITE AQUI A LEGENDA DA FOTO 18 -->
  <p class="photo-caption">Tive q te colocar vestida de flamengo (se Deus quiser te converto kkkk) ❤️</p></div>
- <figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="18" alt="Foto 19 de Pedro e Thaci"><span class="empty">Foto 19</span></figure>
- <figure class="photo reveal photo-wide"><img loading="lazy" decoding="async" data-photo="19" alt="Foto 20 de Pedro e Thaci"><span class="empty">Foto 20</span></figure>
 </div>
+<div class="album-flowers" aria-hidden="true"><div class="flowers" data-small></div></div>
+<div class="wrap album album-spread" aria-label="Fotos de Pedro e Thaci">
+<figure class="photo reveal"><img loading="lazy" decoding="async" data-photo="18" alt="Foto 19 de Pedro e Thaci"><span class="empty">Foto 19</span></figure>
+<figure class="photo reveal photo-wide"><img loading="lazy" decoding="async" data-photo="19" alt="Foto 20 de Pedro e Thaci"><span class="empty">Foto 20</span></figure>
 </div>
+</section>
 <div class="flower-border flower-border-dark" aria-hidden="true"><div class="flowers"></div></div>
 <section class="garden">
  <div class="wrap reveal"><p class="eyebrow">Tem mais uma surpresa</p><h2>O jardim <em>da Thaci.</em></h2><p>Três fases, três lírios e uma carta esperando por você no fim do jardim.</p><a id="play" class="button" hidden>Entrar no jardim →</a><p id="game-note" class="game-note">O jogo está sendo preparado.</p><footer>Com amor, Pedro.</footer></div>
@@ -129,7 +159,7 @@ function lily(i) {
 let index = 0;
 const tilts = [-12, 4, -4, 11, -9, 5, 12];
 for (const bed of document.querySelectorAll('.flowers')) {
-  tilts.forEach((tilt, position) => {
+  (bed.hasAttribute('data-small') ? [-14, 3, 14] : tilts).forEach((tilt, position) => {
     const flower = document.createElement('div');
     flower.className = 'lily';
     flower.style.setProperty('--tilt', `${tilt}deg`);
