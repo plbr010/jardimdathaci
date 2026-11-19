@@ -55,6 +55,21 @@
   .album-spread .photo-wide{grid-column:1 / -1}
   .album-spread:last-child>:first-child{grid-column:3 / span 8}
 }
+
+#thaci-game{width:min(100%,680px);margin:2rem auto 0;text-align:left}
+.game-hud{display:flex;justify-content:space-between;gap:.7rem;flex-wrap:wrap;padding:.6rem .15rem;color:#ffe7c5;font:600 .85rem system-ui}
+#garden-canvas{display:block;width:100%;height:auto;border:1px solid #e0bd8d;border-radius:14px;image-rendering:pixelated;outline-offset:4px}
+.game-controls{display:flex;gap:.6rem;padding-top:.75rem;touch-action:none;user-select:none;-webkit-user-select:none}
+.game-controls button{color:#281924;background:#f3d5bb;border:0;border-radius:12px;min-height:56px;min-width:64px;font:700 1rem system-ui;touch-action:none;cursor:pointer}
+.game-controls button:last-child{margin-left:auto;padding:0 1.2rem}
+.game-controls button:active{background:#fff0d9}
+#thaci-game .game-status{margin:.7rem 0;font-size:.86rem;color:#f2c3c6}
+#garden-finale{text-align:center;padding:1rem 0}
+#garden-letter{background:#fff1dc;color:#422431;border-radius:10px;padding:clamp(1rem,5vw,2rem);margin-top:1rem;text-align:left}
+#garden-letter h3{margin:0 0 .8rem}
+.garden #garden-letter p{max-width:none;margin:0 0 .75rem}
+@media(max-width:650px){#thaci-game{margin-top:1.3rem}.game-controls button{min-height:52px}}
+
 </style>
 <body>
 <main>
@@ -114,7 +129,227 @@
 </section>
 <div class="flower-border flower-border-dark" aria-hidden="true"><div class="flowers"></div></div>
 <section class="garden">
- <div class="wrap reveal"><p class="eyebrow">Tem mais uma surpresa</p><h2>O jardim <em>da Thaci.</em></h2><p>Três fases, três lírios e uma carta esperando por você no fim do jardim.</p><a id="play" class="button" hidden>Entrar no jardim →</a><p id="game-note" class="game-note">O jogo está sendo preparado.</p><footer>Com amor, Pedro.</footer></div>
+ <div class="wrap reveal"><p class="eyebrow">Tem mais uma surpresa</p><h2>O jardim <em>da Thaci.</em></h2><p>Três fases, três lírios e uma carta esperando por você no fim do jardim.</p><button id="play" class="button hero-action" type="button" hidden>Jogar no jardim →</button><footer>Com amor, Pedro.</footer></div>
+<div class="wrap">
+<div id="thaci-game" hidden>
+  <div class="game-hud"><span id="garden-level"></span><span id="garden-lilies"></span></div>
+  <canvas id="garden-canvas" width="360" height="286" tabindex="0" aria-label="Jogo de plataforma. Use as setas para andar e espaço para pular."></canvas>
+  <div class="game-controls" aria-label="Controles do jogo">
+    <button type="button" data-move="left" aria-label="Esquerda">←</button>
+    <button type="button" data-move="right" aria-label="Direita">→</button>
+    <button type="button" data-move="jump">Pular ↑</button>
+  </div>
+  <p class="game-status" id="garden-status" aria-live="polite"></p>
+  <div id="garden-finale" hidden>
+    <p>Te esperando aqui, meu amor.</p>
+    <button class="button hero-action" id="open-letter" type="button" aria-expanded="false">Abrir minha carta 💌</button>
+    <article id="garden-letter" hidden>
+      <!-- EDITE AQUI A CARTA FINAL -->
+      <h3>Thaci, meu amor,</h3>
+      <p>Se pudesse, eu tava aí do seu lado agora, te vendo jogar e rindo toda vez que você errasse um pulo. Como eu queria te dar um abraço no fim, dei um jeito de estar te esperando aqui também.</p>
+      <p>Feliz aniversário. Gosto de viver os dias com você, até aqueles em que a gente só tira foto fazendo careta. Que seu novo ano te traga muita coisa boa. Quero estar por perto pra ouvir você me contar cada uma delas.</p>
+      <p>Eu te amo. Com amor, Pedro. ❤️</p>
+    </article>
+  </div>
+</div>
+<script>
+(() => {
+  const get = id => document.getElementById(id);
+  const panel = get('thaci-game'), canvas = get('garden-canvas'), ctx = canvas.getContext('2d');
+  const launch = get('play');
+  if (!ctx) return;
+  const levels = [
+    {name:'Entrada do jardim', sky:'#a25776', glow:'#f1ad91', ground:'#4d5947', tip:'Ande até o primeiro lírio e pule sobre os canteiros.', platforms:[[0,232,215],[264,214,160],[482,233,182],[709,224,207]], flower:[344,195], gate:873},
+    {name:'Riacho dos lírios', sky:'#634b79', glow:'#e6929c', ground:'#43505d', tip:'Atravesse o riacho pelas pedras e pegue o segundo lírio.', platforms:[[0,231,171],[234,218,101],[398,198,114],[579,225,121],[762,221,174]], flower:[488,179], gate:892},
+    {name:'Jardim dos vaga-lumes', sky:'#382d58', glow:'#a36785', ground:'#3f534b', tip:'Siga os vaga-lumes até a estufa. O último lírio está no caminho.', platforms:[[0,230,175],[236,213,110],[411,188,121],[599,207,122],[787,229,216]], flower:[690,188], gate:917}
+  ];
+  const saveKey = 'jardim-thaci-progresso-v1';
+  let progress = 0, picked = false;
+  try {
+    const data = JSON.parse(localStorage.getItem(saveKey));
+    if (Number.isInteger(data?.progress) && data.progress >= 0 && data.progress <= 3) {
+      progress = data.progress;
+      picked = data.picked === true;
+    }
+  } catch {}
+  function save() { try { localStorage.setItem(saveKey, JSON.stringify({progress,picked})); } catch {} }
+  const keys = new Set(), touches = new Map();
+  let player, checkpoint, jumpQueued = false, camera = 0, last = 0, clock = 0, running = false;
+  function reset(x, top) {
+    player = {x,y:top-28,vx:0,vy:0,grounded:true,facing:1};
+    camera = Math.max(0,x-125);
+  }
+  function stage() {
+    keys.clear(); touches.clear(); jumpQueued = false;
+    if (progress < 3) {
+      checkpoint = [28,levels[progress].platforms[0][1]];
+      reset(...checkpoint);
+    }
+    get('garden-level').textContent = progress === 3 ? 'A estufa' : `Fase ${progress+1} · ${levels[progress].name}`;
+    get('garden-lilies').textContent = `Lírios ${Math.min(3,progress+Number(picked))}/3`;
+    get('garden-status').textContent = progress === 3 ? '' : levels[progress].tip;
+    panel.querySelector('.game-controls').hidden = progress === 3;
+    get('garden-finale').hidden = progress < 3;
+  }
+  function held(action) { return keys.has(action) || [...touches.values()].includes(action); }
+  const keyboard = {ArrowLeft:'left',ArrowRight:'right',ArrowUp:'jump',Space:'jump',KeyA:'left',KeyD:'right'};
+  panel.addEventListener('keydown', event => {
+    const action = keyboard[event.code];
+    if (!action || progress === 3 || event.target.closest('button') && event.code === 'Space') return;
+    event.preventDefault();
+    if (action === 'jump' && !event.repeat) jumpQueued = true;
+    keys.add(action);
+  });
+  window.addEventListener('keyup', event => keys.delete(keyboard[event.code]));
+  window.addEventListener('blur', () => {keys.clear(); touches.clear(); jumpQueued=false;});
+  for (const button of panel.querySelectorAll('[data-move]')) {
+    button.addEventListener('pointerdown', event => {
+      event.preventDefault();
+      button.setPointerCapture(event.pointerId);
+      touches.set(event.pointerId,button.dataset.move);
+      if (button.dataset.move === 'jump') jumpQueued = true;
+    });
+    for (const name of ['pointerup','pointercancel','lostpointercapture']) {
+      button.addEventListener(name,event => touches.delete(event.pointerId));
+    }
+  }
+  get('open-letter').addEventListener('click', () => {
+    if (progress !== 3) return;
+    const letter = get('garden-letter');
+    letter.hidden = !letter.hidden;
+    get('open-letter').setAttribute('aria-expanded',String(!letter.hidden));
+    get('open-letter').textContent = letter.hidden ? 'Abrir minha carta 💌' : 'Fechar carta';
+    if (!letter.hidden) letter.scrollIntoView({block:'nearest'});
+  });
+  function tick(dt) {
+    const level = levels[progress], p = player;
+    const direction = Number(held('right')) - Number(held('left'));
+    p.vx = direction*160;
+    if (direction) p.facing = direction;
+    if (jumpQueued && p.grounded) p.vy = -375;
+    jumpQueued = false;
+    const before = p.y+28;
+    p.x = Math.max(5,Math.min(level.gate+37,p.x+p.vx*dt));
+    p.vy += 690*dt;
+    p.y += p.vy*dt;
+    p.grounded = false;
+    for (const [x,y,w] of level.platforms) {
+      if (p.vy>=0 && before<=y+1 && p.y+28>=y && p.x+13>x && p.x<x+w) {
+        p.y=y-28; p.vy=0; p.grounded=true;
+        if (x>checkpoint[0]) checkpoint=[x+12,y];
+        break;
+      }
+    }
+    if (p.y>310) {reset(...checkpoint);return;}
+    camera = Math.max(0,Math.min(level.gate-220,p.x-125));
+    if (!picked && Math.abs(p.x+6-level.flower[0])<21 && Math.abs(p.y+14-level.flower[1])<23) {
+      picked=true; save();
+      get('garden-lilies').textContent=`Lírios ${progress+1}/3`;
+      get('garden-status').textContent='Lírio coletado! Siga até a luz no fim do caminho.';
+    }
+    if (p.x>=level.gate && p.grounded) {
+      if (!picked) {get('garden-status').textContent='O lírio desta fase ainda está pelo caminho.';return;}
+      progress++; picked=false; save(); stage();
+    }
+  }
+  function box(color,x,y,w,h) {ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),w,h);}
+  function circle(color,x,y,r) {ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();}
+  function sprite(x,y,thaci,facing=1,moving=false,air=false,scale=1) {
+    ctx.save();ctx.translate(Math.round(x),Math.round(y));ctx.scale(scale,scale);
+    if (facing<0) {ctx.translate(14,0);ctx.scale(-1,1);}
+    const hair=thaci?'#a95e39':'#2a1b23', skin=thaci?'#be8159':'#ad7359';
+    box(hair,2,0,10,12);
+    box(hair,0,3,4,thaci?16:8);
+    box(hair,5,-2,6,4);
+    if (!thaci) {box(hair,1,-1,4,5);box(hair,11,1,3,5);}
+    box(skin,5,5,8,8);
+    box('#32202d',10,7,2,2);
+    if (thaci) {box('#d89054',1,6,2,9);box('#fff0d8',12,10,1,1);}
+    box(thaci?'#bc6681':'#e7e0d1',3,13,9,9);
+    box(skin,12,14,3,5);
+    const stride=air?2:moving?Math.round(Math.sin(clock*21)*2):0;
+    box('#303549',3,22,4,5+stride);box('#303549',8,22,4,5-stride);
+    box('#f6dec5',2,27+stride,5,2);box('#f6dec5',8,27-stride,5,2);
+    ctx.restore();
+  }
+  function flower(x,y) {
+    box('#739672',x-1,y,2,12);box('#8fab83',x-5,y+7,5,2);
+    circle('#ffebd4',x-4,y,3);circle('#ffd4db',x+4,y,3);
+    circle('#fff5da',x,y-4,4);circle('#f5b86a',x,y,2);
+  }
+  function background(level,offset) {
+    const sky=ctx.createLinearGradient(0,0,0,286);
+    sky.addColorStop(0,level.sky); sky.addColorStop(1,level.glow);
+    ctx.fillStyle=sky;ctx.fillRect(0,0,360,286);
+    circle('#f9d9b3',269-offset*.09,64,24);
+    for(let i=0;i<9;i++) {
+      const x=i*53-((offset*.23)%53);
+      circle('#553e61',x,219+Math.sin(i*2)*11,48);
+      circle('#624762',x+15,233+Math.cos(i*3)*15,33);
+    }
+    for(let i=0;i<20;i++) {
+      const x=(i*47+510-offset*.52)%370;
+      const y=36+(i*31)%180+Math.sin(clock*1.6+i)*4;
+      circle(i%3?'#f7d6a0':'#ffe9c5',x,y,1+(i%3===0));
+    }
+  }
+  function greenhouse(x,y) {
+    box('#352a42',x+1,y+24,84,69);
+    ctx.fillStyle='#76536c';
+    ctx.beginPath();ctx.moveTo(x-5,y+27);ctx.lineTo(x+43,y-2);ctx.lineTo(x+91,y+27);ctx.fill();
+    box('#e4aa73',x+10,y+29,20,23);box('#ffd594',x+58,y+29,19,23);
+    box('#836075',x+33,y+38,21,55);box('#ffd89a',x+39,y+44,9,24);
+    box('#ad8290',x+18,y+29,2,23);box('#ad8290',x+67,y+29,2,23);
+  }
+  function draw() {
+    if (progress === 3) {
+      background(levels[2],0);
+      box('#3d5049',0,238,360,48);
+      greenhouse(135,100);
+      box('#c37966',171,222,15,13);
+      [173,179,185].forEach((x,i)=>flower(x,211+i%2*3));
+      sprite(108,195,true,1,false,false,1.45);
+      sprite(232,195,false,-1,false,false,1.45);
+      circle('#ffe0ab',213,162,2);
+      return;
+    }
+    const level=levels[progress];
+    background(level,camera);
+    if (progress===1) {
+      box('#4e6d8d',0,257,360,29);
+      for(let i=0;i<9;i++) box('#7b9db5',i*47-(clock*12%47),264+i%3*7,20,2);
+    }
+    for (const [x,y,w] of level.platforms) {
+      box(level.ground,x-camera,y,w,286-y);
+      box('#829576',x-camera,y,w,4);
+      for(let i=7;i<w;i+=15) box('#63775d',x+i-camera,y+5,4,3);
+    }
+    if (!picked) flower(level.flower[0]-camera,level.flower[1]+Math.sin(clock*3)*2);
+    const x=level.gate-camera,y=level.platforms.at(-1)[1];
+    if (progress===2) greenhouse(x-17,y-93);
+    else {box('#d6a478',x+10,y-32,3,32);circle('#ffd795',x+11,y-36,6);}
+    sprite(player.x-camera,player.y,true,player.facing,Boolean(player.vx),!player.grounded);
+  }
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function frame(now) {
+    const dt=Math.min(.032,(now-last)/1000 || 0);
+    last=now;
+    if (!reducedMotion || progress < 3) clock+=dt;
+    if (progress<3) tick(dt);
+    draw();
+    requestAnimationFrame(frame);
+  }
+  launch.addEventListener('click', () => {
+    panel.hidden=false;
+    if(!running) {running=true;stage();requestAnimationFrame(time=>{last=time;frame(time);});}
+    canvas.focus({preventScroll:true});
+    panel.scrollIntoView({block:'center'});
+  });
+  launch.hidden=false;
+})();
+</script>
+
+</div>
 </section>
 </main>
 
@@ -122,8 +357,7 @@
 // Coloque os arquivos de imagem na mesma pasta, ou ajuste estes caminhos.
 // Ao integrar o jogo, preencha game com o caminho ou link que o Claude entregar.
 const gift = {
-  photos: Array.from({length: 20}, (_, i) => `foto-${String(i + 1).padStart(2, '0')}.jpg`),
-  game: ''
+  photos: Array.from({length: 20}, (_, i) => `foto-${String(i + 1).padStart(2, '0')}.jpg`)
 };
 for (const img of document.querySelectorAll('[data-photo]')) {
   const src = gift.photos[Number(img.dataset.photo)];
@@ -134,12 +368,6 @@ for (const img of document.querySelectorAll('[data-photo]')) {
     });
     img.src = src;
   }
-}
-if (gift.game) {
-  const play = document.querySelector('#play');
-  play.href = gift.game;
-  play.hidden = false;
-  document.querySelector('#game-note').hidden = true;
 }
 function lily(i) {
   return `<svg viewBox="0 0 180 310" aria-hidden="true">
