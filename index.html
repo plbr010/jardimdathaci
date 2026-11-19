@@ -312,7 +312,7 @@ body.intro-lock{overflow:hidden}
   const keys = new Set(), touches = new Map();
   let player, checkpoint, enemies = [], jumpQueued = false, camera = 0, last = 0, clock = 0, running = false;
   function reset(x, top) {
-    player = {x,y:top-28,vx:0,vy:0,grounded:true,facing:1};
+    player = {x,y:top-28,vx:0,vy:0,grounded:true,facing:1,jumpBuffer:0,coyote:0};
     camera = Math.max(0,x-125);
   }
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -321,7 +321,7 @@ body.intro-lock{overflow:hidden}
   const dialogue = get('garden-dialogue');
   const letterButton = get('open-letter');
   function showFinale() {
-    const line = finaleTime < 1.65 ? 'Pedro chegou à estufa.'
+    const line = finaleTime < 1.65 ? 'Pedro chegou em casa.'
       : finaleTime < 4 ? 'Pedro: Trouxe seus lírios, meu amor. Feliz aniversário!'
       : finaleTime < 5.4 ? 'Thaci: Vem cá, meu amor.'
       : '❤️';
@@ -337,7 +337,7 @@ body.intro-lock{overflow:hidden}
       }));
       reset(...checkpoint);
     }
-    get('garden-level').textContent = progress === total ? 'A estufa' : `Fase ${progress+1} · ${levels[progress].name}`;
+    get('garden-level').textContent = progress === total ? 'Em casa' : `Fase ${progress+1} · ${levels[progress].name}`;
     get('garden-lilies').textContent = `Lírios ${Math.min(total,progress+Number(picked))}/${total}`;
     get('garden-status').textContent = progress === total ? '' : levels[progress].tip;
     panel.querySelector('.game-controls').hidden = progress === total;
@@ -382,8 +382,14 @@ body.intro-lock{overflow:hidden}
     const direction = Number(held('right')) - Number(held('left'));
     p.vx = direction*160;
     if (direction) p.facing = direction;
-    if (jumpQueued && p.grounded) p.vy = -375;
+    p.jumpBuffer = jumpQueued ? .13 : Math.max(0,p.jumpBuffer-dt);
+    p.coyote = p.grounded ? .10 : Math.max(0,p.coyote-dt);
     jumpQueued = false;
+    if (p.jumpBuffer > 0 && p.coyote > 0) {
+      p.vy = -375;
+      p.jumpBuffer = 0;
+      p.coyote = 0;
+    }
     const before = p.y+28;
     p.x = Math.max(5,Math.min(level.gate+37,p.x+p.vx*dt));
     p.vy += 690*dt;
@@ -506,7 +512,15 @@ body.intro-lock{overflow:hidden}
     if (progress === total) {
       background(levels.at(-1),0);
       box('#3d5049',0,238,360,48);
-      greenhouse(135,100);
+      box('#75435d',119,153,122,85);
+      ctx.fillStyle='#37213e';
+      ctx.beginPath();ctx.moveTo(100,155);ctx.lineTo(180,94);ctx.lineTo(260,155);ctx.closePath();ctx.fill();
+      box('#ebaf85',135,169,22,22);box('#ebaf85',203,169,22,22);
+      for (const windowX of [135,203]) {
+        box('#a55f68',windowX+10,169,2,22);
+        box('#a55f68',windowX,179,22,2);
+      }
+      box('#47293f',168,169,24,69);circle('#efb778',187,203,2);
       const arrival = Math.min(1, finaleTime/1.65);
       const embrace = Math.max(0, Math.min(1,(finaleTime-4.7)/.7));
       const pedroX = 53+98*arrival+15*embrace;
@@ -545,7 +559,13 @@ body.intro-lock{overflow:hidden}
       }
       for(let i=7;i<w;i+=15) box('#63775d',x+i-camera,y+5,4,3);
     }
-    if (!picked) flower(level.flower[0]-camera,level.flower[1]+Math.sin(clock*3)*2,lilies[progress]);
+    if (!picked) {
+      const flowerX=level.flower[0]-camera;
+      const flowerY=level.flower[1]+(reducedMotion ? 0 : Math.sin(clock*3)*2);
+      circle('#ffe5a733',flowerX,flowerY,13);
+      circle('#ffe5a722',flowerX,flowerY,19);
+      flower(flowerX,flowerY,lilies[progress]);
+    }
     const x=level.gate-camera,y=level.platforms.at(-1)[1];
     if (progress===total-1) greenhouse(x-17,y-93);
     else {box('#d6a478',x+10,y-32,3,32);circle('#ffd795',x+11,y-36,6);}
