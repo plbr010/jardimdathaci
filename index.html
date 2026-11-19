@@ -71,7 +71,52 @@
 @media(max-width:650px){#thaci-game{margin-top:1.3rem}.game-controls button{min-height:52px}}
 
 </style>
+<style>
+body.intro-lock{overflow:hidden}
+.birthday-intro{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 72%,#32172d 0,#160d1d 48%,#090811 100%);transition:opacity .9s ease,visibility .9s}
+.birthday-intro.done{opacity:0;visibility:hidden;pointer-events:none}
+.intro-sky{position:absolute;inset:0;background:radial-gradient(circle at 50% 56%,#6e274c33,transparent 42%);animation:introGlow 5.7s ease both}
+.intro-flower{position:relative;width:min(80vw,350px);height:min(72vh,470px);filter:drop-shadow(0 0 22px #fa7dac35)}
+.intro-stem{position:absolute;left:50%;bottom:5%;width:6px;height:0;border-radius:99px;background:linear-gradient(90deg,#287147,#55b46d,#245b3d);transform:translateX(-50%);animation:growStem 1.55s .35s cubic-bezier(.16,.8,.3,1) forwards}
+.intro-leaf{position:absolute;bottom:22%;left:50%;width:0;height:0;border-radius:100% 0 100% 0;background:linear-gradient(135deg,#4bb66b,#17603f);transform-origin:0 100%;opacity:0}
+.intro-leaf.left{animation:leafLeft .8s 1.25s cubic-bezier(.2,.8,.2,1) forwards}
+.intro-leaf.right{animation:leafRight .8s 1.55s cubic-bezier(.2,.8,.2,1) forwards}
+.intro-bloom{position:absolute;left:50%;bottom:55%;width:132px;height:132px;transform:translate(-50%,50%) scale(0);animation:bloomOpen 1.35s 2s cubic-bezier(.15,.9,.25,1.15) forwards}
+.intro-petal{position:absolute;left:50%;top:50%;width:53px;height:82px;border-radius:70% 70% 55% 55%;background:radial-gradient(circle at 50% 28%,#fff7e6 0 13%,#f8bfd0 48%,#d96c9c 100%);transform-origin:50% 92%;box-shadow:inset 0 -8px 14px #b8427566,0 0 16px #ff9fc466}
+.intro-petal:nth-child(1){transform:translate(-50%,-91%) rotate(0)}
+.intro-petal:nth-child(2){transform:translate(-50%,-91%) rotate(72deg)}
+.intro-petal:nth-child(3){transform:translate(-50%,-91%) rotate(144deg)}
+.intro-petal:nth-child(4){transform:translate(-50%,-91%) rotate(216deg)}
+.intro-petal:nth-child(5){transform:translate(-50%,-91%) rotate(288deg)}
+.intro-core{position:absolute;left:50%;top:50%;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle,#fff2a8,#e6a34e 65%,#ba673c);transform:translate(-50%,-50%);box-shadow:0 0 18px #ffd884}
+.intro-title{position:absolute;left:50%;bottom:8%;width:max-content;max-width:92vw;text-align:center;color:#ffe9d7;transform:translateX(-50%);opacity:0;animation:titleIn 1s 3.25s ease forwards}
+.intro-title span{display:block;font:.7rem/1.4 system-ui;letter-spacing:.28em;text-transform:uppercase;color:#eeb4c7}
+.intro-title strong{display:block;margin-top:.3rem;font:400 clamp(2.1rem,9vw,4rem)/1 Georgia,serif}
+.intro-heart{position:absolute;bottom:-35px;color:#f58caf;opacity:0;text-shadow:0 0 12px #ff87b2;animation:heartFloat var(--dur) var(--delay) ease-in infinite;font-size:var(--size)}
+.intro-spark{position:absolute;width:3px;height:3px;border-radius:50%;background:#ffe6ad;box-shadow:0 0 8px #ffe6ad;opacity:0;animation:sparkFloat var(--dur) var(--delay) ease-in infinite}
+.intro-skip{position:absolute;right:max(18px,env(safe-area-inset-right));top:max(18px,env(safe-area-inset-top));border:1px solid #f5b6c688;background:#1b1020aa;color:#ffe8dd;border-radius:999px;padding:.55rem .9rem;font:600 .75rem system-ui;cursor:pointer}
+.hero.hero-ready .hero-grid{animation:heroReveal 1s ease both}
+@keyframes growStem{to{height:52%}}
+@keyframes leafLeft{from{opacity:0;width:0;height:0;transform:translate(-2px,0) rotate(-15deg)}to{opacity:1;width:82px;height:42px;transform:translate(-2px,0) rotate(-38deg)}}
+@keyframes leafRight{from{opacity:0;width:0;height:0;transform:translate(2px,-48px) rotate(165deg)}to{opacity:1;width:76px;height:39px;transform:translate(2px,-48px) rotate(205deg)}}
+@keyframes bloomOpen{0%{transform:translate(-50%,50%) scale(0) rotate(-18deg)}70%{transform:translate(-50%,50%) scale(1.12) rotate(3deg)}100%{transform:translate(-50%,50%) scale(1) rotate(0)}}
+@keyframes heartFloat{0%{opacity:0;transform:translate3d(0,0,0) scale(.6) rotate(-8deg)}15%{opacity:.8}100%{opacity:0;transform:translate3d(var(--drift),-105vh,0) scale(1.25) rotate(18deg)}}
+@keyframes sparkFloat{0%{opacity:0;transform:translateY(0)}20%{opacity:.9}100%{opacity:0;transform:translateY(-75vh)}}
+@keyframes titleIn{from{opacity:0;transform:translate(-50%,18px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes introGlow{0%{opacity:.2}60%,100%{opacity:1}}
+@keyframes heroReveal{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.birthday-intro *{animation-duration:.01ms!important;animation-delay:0s!important}.birthday-intro{transition-duration:.01ms}}
+</style>
 <body>
+<div class="birthday-intro" id="birthday-intro" role="dialog" aria-label="Uma surpresa para Thaci">
+ <div class="intro-sky"></div>
+ <div class="intro-flower" aria-hidden="true">
+  <i class="intro-stem"></i><i class="intro-leaf left"></i><i class="intro-leaf right"></i>
+  <div class="intro-bloom"><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-petal"></i><i class="intro-core"></i></div>
+ </div>
+ <div class="intro-title"><span>Um jardim nasceu pra você</span><strong>Feliz aniversário, Thaci.</strong></div>
+ <button class="intro-skip" type="button">Pular animação</button>
+</div>
 <main>
 <section class="hero">
  <div class="petals" aria-hidden="true"></div>
@@ -520,6 +565,37 @@ if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: re
     observer.observe(section);
   }
 }
+</script>
+<script>
+(() => {
+  const intro = document.querySelector('#birthday-intro');
+  const hero = document.querySelector('.hero');
+  if (!intro || !hero) return;
+  document.body.classList.add('intro-lock');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const particleCount = reduced ? 0 : 22;
+  for (let i = 0; i < particleCount; i++) {
+    const heart = document.createElement(i % 3 ? 'i' : 'b');
+    heart.className = i % 3 ? 'intro-heart' : 'intro-spark';
+    heart.textContent = i % 3 ? '♥' : '';
+    heart.style.cssText = `left:${4+(i*37)%92}%;--size:${10+(i%5)*4}px;--dur:${4.1+(i%6)*.48}s;--delay:-${(i*.41)%5}s;--drift:${-35+(i*19)%71}px`;
+    intro.append(heart);
+  }
+  let closed = false;
+  function finishIntro() {
+    if (closed) return;
+    closed = true;
+    intro.classList.add('done');
+    document.body.classList.remove('intro-lock');
+    hero.classList.add('hero-ready');
+    setTimeout(() => intro.remove(), 1000);
+  }
+  intro.querySelector('.intro-skip').addEventListener('click', finishIntro);
+  intro.addEventListener('click', event => {
+    if (event.target === intro) finishIntro();
+  });
+  setTimeout(finishIntro, reduced ? 300 : 5900);
+})();
 </script>
 </body>
 </html>
